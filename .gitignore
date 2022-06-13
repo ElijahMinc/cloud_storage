@@ -1,0 +1,11 @@
+# FRONTEND
+
+/client/node_modules
+
+
+# BACKEND
+
+/server/node_modules
+/server/.env
+
+
