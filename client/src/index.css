@@ -1,0 +1,43 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;600;800&family=Open+Sans:wght@300&family=Tiro+Devanagari+Hindi&display=swap');
+
+:root{
+   --theme-dark: #42313A;
+   --theme-light: #E5E5E5;
+
+   --color-light-primary: #fff;
+   --color-light-secondary: #E5E5E5;
+
+   --color-light-text-primary: #566885;
+}
+
+body,html {
+   margin: 0;
+   background-color: var(--color-light-secondary);
+
+   font-family: 'Nunito Sans', sans-serif;
+   font-family: 'Open Sans', sans-serif;
+   font-family: 'Tiro Devanagari Hindi', serif;
+}
+
+*{
+   box-sizing: border-box;
+   margin: 0;
+   padding: 0;
+}
+main{
+   height: 100vh;
+   padding-top: 20px;
+}
+a{
+   text-decoration: none;
+   color: var(--color-light-text-primary);
+
+   font-weight: 700;
+   font-size: 20px;
+   line-height: 23px;
+}
+.container{
+   max-width: 1300px;
+   height: 100%;
+   margin: 0 auto;
+}

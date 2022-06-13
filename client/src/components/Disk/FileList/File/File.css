@@ -1,0 +1,55 @@
+.file{
+   display: grid;
+   grid-template-columns: repeat(12, minmax(95px, 1fr));
+
+   align-items: center;
+   justify-items: center;
+
+   border-bottom: 2px solid var(--color-light-text-primary);
+   padding: 5px 0;
+
+   cursor: pointer;
+   transition: .3s;
+}
+.file:hover{
+   transform: translateX(-5px);
+}
+.file__item{
+   font-weight: 400;
+   font-size: 18px;
+   line-height: 21px;
+
+   color: var(--color-light-text-primary);
+}
+
+.file__item:nth-child(2){
+   grid-column: 2/3;
+}
+.file__item:nth-child(3){
+   grid-column: -4/-5;
+}
+.file:hover .cart{
+   opacity: 1;
+   visibility: visible;
+}
+.file:hover .download {
+   opacity: 1;
+   visibility: visible;
+}
+.cart, .download{
+   opacity: 0;
+   visibility: hidden;
+   cursor: pointer;
+   transition: .2s ease-in-out;
+}
+
+.no-dir{
+   cursor: auto;
+}
+.download{
+   cursor: pointer;
+}
+.touch{
+   pointer-events: none;
+   cursor: auto;
+}
