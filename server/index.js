@@ -26,9 +26,9 @@ app.use('/file', corsMiddleware, fileRouter);
 
 const start = async () => {
   try {
-    await mongoose.connect(process.env.DB_STR_CONNECT);
+    await mongoose.connect(process.env.MONGO_DB_CONNECT);
 
-    app.listen(process.env.DEFAULT_PORT, () => console.log('Server started'));
+    app.listen(process.env.PORT, () => console.log('Server started'));
   } catch (e) {
     console.log(e);
   }
