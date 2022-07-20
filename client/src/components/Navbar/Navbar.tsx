@@ -5,7 +5,7 @@ import { setFirstWordToUppercase } from '@helpers/setFirstWordToUppercase'
 import { useAppDispatch, useAppSelector } from '@hooks/useAppRedux'
 import { createFolder, fileSelector, setCurrentDir, setFilterValue, setRefreshFilesUpload, setSearchValue, setSortValue, setUpdatedParentDirsOfId, uploadFile } from '@redux/slices/FileSlice'
 import { Filter, QueryParams } from '@typesModule/types'
-import { UploadModal } from '@components/UploadModal/UploadModal'
+import { UploadDrawer } from '@/components/UploadDrawer/UploadDrawer'
 import { Select } from '@chakra-ui/react'
 import { SearchIcon } from '@chakra-ui/icons'
 
@@ -17,7 +17,7 @@ export const Navbar: React.FC = () => {
    const { onOpen, onClose, isOpen } = useDisclosure()
 
    const inputUploadFileRef = useRef<HTMLInputElement>(null)
-   const [isShowUploadModal, setUploadModal] = useState(false)
+   const [isShowUploadDrawer, setShowUploadDrawer] = useState(false)
    const [modalValue, setModalValue] = useState('')
 
    const dispatch = useAppDispatch()
@@ -43,7 +43,7 @@ export const Navbar: React.FC = () => {
 
    const handleUploadFile = (e: React.ChangeEvent<HTMLInputElement>) => {
       if(e.target.files && inputUploadFileRef.current){
-         setUploadModal(true)
+         setShowUploadDrawer(true)
          dispatch(setRefreshFilesUpload())
 
          const files = Array.from(e.target.files)
@@ -163,10 +163,7 @@ export const Navbar: React.FC = () => {
                />
             </FormControl>
          </CustomModal>
-          {isShowUploadModal && (
-            <UploadModal onClose={() => setUploadModal(false)}/>  
-          )}
-
+         <UploadDrawer isOpen={isShowUploadDrawer} onClose={() => setShowUploadDrawer(false)}/>  
       </nav>
       )
 }
