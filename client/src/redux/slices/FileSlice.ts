@@ -62,7 +62,7 @@ export const fetchFiles = createAsyncThunk<IFile[], {currentDir: string | undefi
 export const createFolder = createAsyncThunk<IFile, {name: string, parentId?: string}>('file/create', async (folderData, { dispatch, rejectWithValue }) => {
 
    try {
-       const response: AxiosResponse<IFile, any> = await axios.post('http://localhost:5000/file', folderData, {
+       const response: AxiosResponse<IFile, any> = await axios.post(`${process.env.REACT_APP_API_URL}/file`, folderData, {
           headers: {
              'Authorization': `Bearer ${localStorage.getItem('token')}`
           }
@@ -83,7 +83,7 @@ export const createFolder = createAsyncThunk<IFile, {name: string, parentId?: st
 export const deleteFile = createAsyncThunk<IFile[], string>('file/delete', async (dirId, { dispatch, rejectWithValue }) => {
 
    try {
-       const response: AxiosResponse<IFile[], any> = await axios.delete(`http://localhost:5000/file/${dirId}`, {
+       const response: AxiosResponse<IFile[], any> = await axios.delete(`${process.env.REACT_APP_API_URL}/file/${dirId}`, {
           headers: {
              'Authorization': `Bearer ${localStorage.getItem('token')}`
           }
@@ -119,7 +119,7 @@ export const uploadFile = createAsyncThunk<IFile, { file: File, parentId?: strin
       }
       dispatch(setUploadFile(uploadingFile))
 
-       const response: AxiosResponse<IFile> = await axios.post(`http://localhost:5000/file/upload`,formData, {
+       const response: AxiosResponse<IFile> = await axios.post(`${process.env.REACT_APP_API_URL}/file/upload`,formData, {
           headers: {
              'Authorization': `Bearer ${localStorage.getItem('token')}`
           },
@@ -146,7 +146,7 @@ export const uploadFile = createAsyncThunk<IFile, { file: File, parentId?: strin
 export const downloadFile = createAsyncThunk<void,  Pick<IFile, 'name' | 'type' | '_id'>>('file/download', async (file, { dispatch, rejectWithValue }) => {
 
    try {
-       const response: AxiosResponse<Blob> = await axios.get(`http://localhost:5000/file/download/${file._id}`, {
+       const response: AxiosResponse<Blob> = await axios.get(`${process.env.REACT_APP_API_URL}/file/download/${file._id}`, {
           responseType: 'blob',
           headers: {
              'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -177,7 +177,7 @@ export const uploadAvatar = createAsyncThunk<void,  File>('file/avatar/upload', 
       const data = new FormData();
       data.append('file', file)
 
-       await axios.post(`http://localhost:5000/file/avatar/upload`,data, {
+       await axios.post(`${process.env.REACT_APP_API_URL}/file/avatar/upload`,data, {
           headers: {
              'Authorization': `Bearer ${localStorage.getItem('token')}`
           },
@@ -200,7 +200,7 @@ export const deleteAvatar = createAsyncThunk<void>('file/avatar/delete', async (
    try {
 
 
-       await axios.delete(`http://localhost:5000/file/avatar/delete`, {
+       await axios.delete(`${process.env.REACT_APP_API_URL}/file/avatar/delete`, {
           headers: {
              'Authorization': `Bearer ${localStorage.getItem('token')}`
           },

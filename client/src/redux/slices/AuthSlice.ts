@@ -18,7 +18,7 @@ const initialState: AuthState = {
 export const loginThunk = createAsyncThunk<Response<User>, Pick<User, 'email' | 'password'>>('auth/login', async (userData, { dispatch, rejectWithValue }) => {
 
     try {
-        const response: AxiosResponse<Response<User>, any> = await axios.post('http://localhost:5000/auth/login', userData)
+        const response: AxiosResponse<Response<User>, any> = await axios.post(`${process.env.REACT_APP_API_URL}/auth/login`, userData)
 
         dispatch(setToast({title: `Login is success`, status: 'success'}))
 
@@ -37,7 +37,7 @@ export const loginThunk = createAsyncThunk<Response<User>, Pick<User, 'email' | 
 export const registerThunk = createAsyncThunk<Response<User>, Pick<User, 'email' | 'password'>>('auth/register', async (userData, { dispatch, rejectWithValue }) => {
 
   try {
-      const response: AxiosResponse<Response<User>> = await axios.post('http://localhost:5000/auth/register', userData)
+      const response: AxiosResponse<Response<User>> = await axios.post(`${process.env.REACT_APP_API_URL}/auth/register`, userData)
       dispatch(setToast({title: `Register is success`, status: 'success'}))
 
       return response.data
@@ -56,7 +56,7 @@ export const registerThunk = createAsyncThunk<Response<User>, Pick<User, 'email'
 export const fetchUserThunk = createAsyncThunk<User, string>('auth/user', async (token, { dispatch, rejectWithValue }) => {
 
   try {
-      const response: AxiosResponse<User> = await axios.get('http://localhost:5000/auth/user', {
+      const response: AxiosResponse<User> = await axios.get(`${process.env.REACT_APP_API_URL}/auth/user`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
