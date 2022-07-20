@@ -20,7 +20,7 @@ export const UploadDrawer: React.FC<IUploadDrawer> = ({ onClose, isOpen }) => {
         <DrawerOverlay />
         <DrawerContent>
           <DrawerCloseButton />
-          <DrawerHeader>Create your account</DrawerHeader>
+          <DrawerHeader>Uploading File/s</DrawerHeader>
 
           <DrawerBody>
             {uploadFiles.map(({id, name, progress}) => (
