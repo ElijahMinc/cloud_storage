@@ -1,9 +1,9 @@
 import React, { useCallback, useMemo, useState } from 'react'
 import { AuthContext } from './Context/AuthContext'
-import { Auth } from './types/types'
-import { Input } from './Input/Input'
-import { Button } from './Button/Button'
-
+import { CustomInput, MCustomInput } from './CustomInput/CustomInput'
+import { CustomButton, MCustomButton } from './CustomButton/CustomButton'
+import { Box } from '@chakra-ui/react'
+import {motion} from 'framer-motion'
 interface ThemedForm {
    children: React.ReactNode
    title?: string
@@ -41,16 +41,23 @@ export const AuthForm = ( { children,title, onSubmit }: ThemedForm ) => {
    }), [emailValue, passwordValue])
 
    return (
-      <form className='form' onSubmit={onSubmitHandle}>
-         <div className='auth'>
-            {title && <h2>{title}</h2>}
-            <AuthContext.Provider value={value}>
-                  {children}
-            </AuthContext.Provider>
-         </div>
-      </form>
+      <motion.form className='form' initial={{opacity: 0}} animate={{opacity: 1}} transition={{delay: .3}} onSubmit={onSubmitHandle}>
+         <Box p={1} shadow={'base'}>
+
+            <div className='auth'>
+               {title && <motion.h2 initial={{y: -100, opacity: 0}} animate={{y: 0, opacity: 1}} transition={{delay: .5}}>{title}</motion.h2>}
+               <AuthContext.Provider value={value}>
+                     {children}
+               </AuthContext.Provider>
+            </div>
+          </Box>
+
+      </motion.form>
+     
    )
 }
 
-AuthForm.Input = Input
-AuthForm.Button = Button
+AuthForm.Input = CustomInput
+AuthForm.MInput = MCustomInput
+AuthForm.Button = CustomButton
+AuthForm.MButton = MCustomButton

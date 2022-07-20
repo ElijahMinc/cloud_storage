@@ -1,4 +1,4 @@
-import { Filter, QueryParams } from "../types/types";
+import { Filter, QueryParams } from "@typesModule/types";
 
 export const defaultFilters: Filter[] = [
    {

@@ -1,6 +1,6 @@
 import React from 'react'
-import { useAppSelector } from '../../hooks/useAppRedux'
-import { fileSelector } from '../../redux/slices/FileSlice'
+import { useAppSelector } from '@hooks/useAppRedux'
+import { fileSelector } from '@redux/slices/FileSlice'
 import './UploadModal.css'
 
 interface IUploadModal {

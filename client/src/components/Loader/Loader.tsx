@@ -1,6 +1,7 @@
 import React from 'react'
+import loader from '@assets/imgs/loader.svg'
+
 import './Loader.css'
-import loader from '../../assets/imgs/loader.svg'
 
 export const Loader: React.FC = () => {
 

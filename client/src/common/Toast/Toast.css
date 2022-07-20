@@ -1,0 +1,43 @@
+.toast{
+   position: fixed;
+   bottom: 10px;
+   right: 10px;
+
+   background-color: white;
+
+
+}
+
+.toast__list{
+   display: flex;
+   flex-direction: column;
+   gap: 10px;
+}
+
+.toast__item {
+   padding: 15px;
+   max-width: 300px;
+   background-color: white;
+   border: 1px solid black;
+
+   position: relative;
+}
+
+.toast__item._error{
+   background-color: rgb(229, 99, 99);
+
+}
+
+.toast__item._success{
+   color: white;
+   background-color: rgb(35, 129, 52);
+
+}
+
+.toast__item-close{
+   cursor: pointer;
+   position: absolute;
+   top: 0;
+   right:0;
+   font-size: 15px;
+}

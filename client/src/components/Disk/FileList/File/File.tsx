@@ -1,20 +1,20 @@
-import React from 'react'
-import { IFile } from '../../../../types/types'
-import dirImg from '../../../../assets/imgs/folder.png'
-import fileImg from '../../../../assets/imgs/file.png'
-import deleteImg from '../../../../assets/imgs/delete.png'
+import React, { forwardRef } from 'react'
+import dirImg from '@assets/imgs/folder.png'
+import fileImg from '@assets/imgs/file.png'
+import { deleteFile, downloadFile, setCurrentDir, setParentId } from '@redux/slices/FileSlice'
+import { useAppDispatch } from '@hooks/useAppRedux'
+import { getSizeFormat } from '@helpers/getSize'
+import {motion} from 'framer-motion'
+import { DeleteIcon } from '@chakra-ui/icons'
 
 import './File.css'
-import { deleteFile, downloadFile, setCurrentDir, setParentId } from '../../../../redux/slices/FileSlice'
-import { useAppDispatch } from '../../../../hooks/useAppRedux'
-import { getSizeFormat } from '../../../../helpers/getSize'
 
-
-export const File: React.FC<IFile> = ({date, name, size, type, _id }) => {
+//IFile
+export const File: React.FC<any> = forwardRef<any,any>(({date, name, size, type, _id }, ref) => {
    const dispatch = useAppDispatch()
 
    return (
-      <div className={`file ${type !== 'dir' ? 'no-dir' : ''}`} onClick={() => {
+      <div ref={ref} className={`file ${type !== 'dir' ? 'no-dir' : ''}`} onClick={() => {
          if(type !== 'dir') return
          dispatch(setParentId(_id))
          dispatch(setCurrentDir(_id))
@@ -34,10 +34,10 @@ export const File: React.FC<IFile> = ({date, name, size, type, _id }) => {
             {type !== 'dir' && 'Download' }
          </div>
          <div className="file__item">
-            <img src={deleteImg} onClick={(e) => {
+            <DeleteIcon onClick={(e) => {
                e.stopPropagation()
                dispatch(deleteFile(_id))
-            }} className="cart" alt="cart" />
+            }} className="cart" />
          </div>
          <div className="file__item">
             {new Date(date).toLocaleDateString()}
@@ -47,4 +47,7 @@ export const File: React.FC<IFile> = ({date, name, size, type, _id }) => {
          </div>
       </div>
       )
-}
+})
+
+
+export const MFile = motion(File)

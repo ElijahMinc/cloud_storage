@@ -1,29 +1,31 @@
-import React, { ReactEventHandler, useCallback, useRef, useState } from 'react'
-import { Modal } from '../../common/Modal/Modal'
-import { defaultFilters } from '../../helpers/getFilters'
-import { defaultQueryParams } from '../../helpers/getQueryParams'
-import { setFirstWordToUppercase } from '../../helpers/setFirstWordToUppercase'
-import { useAppDispatch, useAppSelector } from '../../hooks/useAppRedux'
-import { createFolder, fileSelector, setCurrentDir, setFilterValue, setRefreshFilesUpload, setSearchValue, setSortValue, setUpdatedParentDirsOfId, uploadFile } from '../../redux/slices/FileSlice'
-import { Filter, QueryParams } from '../../types/types'
-import { UploadModal } from '../UploadModal/UploadModal'
+import { Button, FormControl, FormLabel, Input, InputGroup, InputLeftElement, Stack, Text, useDisclosure } from '@chakra-ui/react'
+import React, {  useRef, useState } from 'react'
+import { defaultFilters } from '@helpers/getFilters'
+import { setFirstWordToUppercase } from '@helpers/setFirstWordToUppercase'
+import { useAppDispatch, useAppSelector } from '@hooks/useAppRedux'
+import { createFolder, fileSelector, setCurrentDir, setFilterValue, setRefreshFilesUpload, setSearchValue, setSortValue, setUpdatedParentDirsOfId, uploadFile } from '@redux/slices/FileSlice'
+import { Filter, QueryParams } from '@typesModule/types'
+import { UploadModal } from '@components/UploadModal/UploadModal'
+import { Select } from '@chakra-ui/react'
+import { SearchIcon } from '@chakra-ui/icons'
+
 import './Navbar.css'
+import { CustomModal } from '../../common/Modal/Modal'
 
 
 export const Navbar: React.FC = () => {
+   const { onOpen, onClose, isOpen } = useDisclosure()
+
    const inputUploadFileRef = useRef<HTMLInputElement>(null)
    const [isShowUploadModal, setUploadModal] = useState(false)
    const [modalValue, setModalValue] = useState('')
-   const [isShowModal, setShowModal] = useState(false)
+
    const dispatch = useAppDispatch()
    const [filter, setFilter] = useState<Filter>(defaultFilters[0])
    const [sort, setSort] = useState<QueryParams['sort']>('asc')
 
    const { currentDir, parentDirs } = useAppSelector(fileSelector)
 
-   const handleCloseModal = useCallback(() => setShowModal(false),[])
-
-   const handleShowModal = useCallback(() => setShowModal(true),[])
 
    const handleBack = () => {
       if(currentDir){
@@ -74,7 +76,7 @@ export const Navbar: React.FC = () => {
       }
       dispatch(createFolder(createFolderData))
       setModalValue('')
-      setShowModal(false)
+      onClose()
    }
 
    const handleSearchValue = () => {
@@ -98,26 +100,37 @@ export const Navbar: React.FC = () => {
       <nav className='navbar'>
          <div className='navbar__item'> 
             {!!parentDirs.length && (
-               <button className='navbar__button' onClick={handleBack}>
+            <Button colorScheme='blue' size='xs' onClick={handleBack}>
                Back
-            </button>
+            </Button>
             )}
           
-            <button className='navbar__button' onClick={handleShowModal}>
+            <Button colorScheme='blue' width="200px"  onClick={onOpen}>
                Create New Folder
-            </button>
-            <label className='navbar__button' htmlFor='file'>
-               Upload File
-               <input ref={inputUploadFileRef} id='file' multiple onChange={handleUploadFile} type="file" />
-            </label>
+            </Button>
+            <Button  colorScheme='blue' position='relative' width="200px" >
+               <FormLabel display="flex" justifyContent="center" alignItems="center" m={0} top="0" left="0" right="0" bottom="0" colorScheme='blue' htmlFor='file' cursor="pointer" position="absolute">
+                  Upload File
+                  <input ref={inputUploadFileRef} id='file' multiple onChange={handleUploadFile} type="file" />
+               </FormLabel>
+            </Button>
+          
          </div>
          <div className='navbar__item'>
-            <input type="text" onChange={handleSearchValue()} placeholder='Search file...'/>
+            <InputGroup>
+               <InputLeftElement
+                  pointerEvents='none'
+                  children={<SearchIcon color='gray.300' />}
+               />
+            <Input type="text" variant='flushed' onChange={handleSearchValue()}  placeholder='Search file...'/>
+
+            </InputGroup>
          </div>
-         <div className='navbar__item'>
-            <div className="sort-group">
-               <select value={filter.id} onChange={(e) => {
-                  console.log(e.target.value)
+         <div className='navbar__item' style={{flexDirection: 'column'}}>
+            <Text fontSize={'2xl'} color="primary.500" mb={2}>Sort By:</Text>
+            <Stack spacing={2}>
+               
+               <Select value={filter.id} onChange={(e) => {
                   const choosedOption = defaultFilters.find((filter) => filter.id === +e.target.value)
                   if (choosedOption){
                      setFilter(choosedOption)
@@ -125,37 +138,31 @@ export const Navbar: React.FC = () => {
                   }
                }}>
                   {defaultFilters.map(({id, value}) => (
-                     <option value={id}>{setFirstWordToUppercase(value)}</option>
+                     <option key={id} value={id}>{setFirstWordToUppercase(value)}</option>
 
                   ))}
-               </select>
-            </div>
-            <div className="sort-group">
-               <select value={sort} onChange={(e) => {
+               </Select>
+               <Select value={sort} onChange={(e) => {
                      const sortValue = e.target.value as QueryParams['sort']
                      setSort(sortValue)
                      dispatch(setSortValue(sortValue))
                }}>
                   <option value='asc'>{setFirstWordToUppercase('asc')}</option>
                   <option value='desc'>{setFirstWordToUppercase('desc')}</option>
-               </select>
-            </div>
-            <div className="group">
-               
-            </div>
+               </Select>
+            </Stack>
          </div>
-         <Modal title='Create New Folder' isShow={isShowModal} onClose={handleCloseModal} onSubmit={handleSubmitModal}>
-            <div className='modal__input'>
-               <input
+         <CustomModal title='Create New Folder' isOpen={isOpen} onClose={onClose}  onSubmit={handleSubmitModal}>
+            <FormControl mt={4}>
+              <FormLabel>Folder Name</FormLabel>
+              <Input
                   type="text"
                   value={modalValue}
                   onChange={(e) => setModalValue(e.target.value)}
                   placeholder="Введите имя папки"
                />
-            </div>
-          
-            
-         </Modal>
+            </FormControl>
+         </CustomModal>
           {isShowUploadModal && (
             <UploadModal onClose={() => setUploadModal(false)}/>  
           )}

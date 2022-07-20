@@ -1,11 +1,13 @@
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
-import  authSlice  from './slices/AuthSlice';
-import  fileSlice  from './slices/FileSlice';
+import  authReducer  from './slices/AuthSlice';
+import  fileReducer  from './slices/FileSlice';
+import  toastReducer  from './slices/ToastSlice';
 
 export const store = configureStore({
   reducer: {
-    auth: authSlice,
-    file: fileSlice
+    auth: authReducer,
+    file: fileReducer,
+    toast: toastReducer
   },
 });
 

@@ -1,58 +1,60 @@
+import { Button, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, useDisclosure } from '@chakra-ui/react'
 import React, { ReactNode, useEffect, useMemo, useRef, useState } from 'react'
-import { createPortal } from 'react-dom'
-import './Modal.css'
 interface IModal {
    onSubmit: () => void
-   isShow: boolean
    onClose: () => void
+   isOpen: boolean
    title: string
    children: ReactNode
 } 
 
-const MODAL_ROOT_ELEMENT = document.querySelector('#modal')!
 
-export const Modal: React.FC<IModal> = ({ onSubmit, isShow, onClose, title, children}) => {
-
-   const modal = useMemo(() => {
-         const modalElement = document.createElement('div');
-
-         return modalElement
-   }, [])
-
-   useEffect(() => {
-      if(isShow){
-         MODAL_ROOT_ELEMENT.appendChild(modal)
-
-         return  () => {
-            MODAL_ROOT_ELEMENT.removeChild(modal)
-         }
-      }
-   }, [isShow])
-
-
-   if(!isShow){
-      return null
-   }
-
-   return createPortal(
-      <div className='modal'>
-         <div className="modal__container">
-            <div className="modal__header">
-               <h3>{title}</h3>
-            </div>
-            <div className="modal__body">
+export const CustomModal: React.FC<IModal> = ({ onSubmit, isOpen, onClose, title, children}) => {
+   const initialRef = React.useRef(null)
+   const finalRef = React.useRef(null)
+   return (
+      <Modal
+         initialFocusRef={initialRef}
+         finalFocusRef={finalRef}
+         isOpen={isOpen}
+         onClose={onClose}
+      >
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader>{title}</ModalHeader>
+        <ModalCloseButton />
+        <ModalBody pb={6}>
                {children}
-            </div>
-            <div className="modal__footer">
-               <button onClick={onSubmit}>
-                  Create
-               </button>
-               <button onClick={onClose}>
-                  Close
-               </button>
-            </div>
-         </div>
-      </div>,
-      modal
-      )
+        </ModalBody>
+
+        <ModalFooter>
+          <Button colorScheme='blue' mr={3} onClick={onSubmit}>
+            Save
+          </Button>
+          <Button onClick={onClose}>Cancel</Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
+   )
+   // createPortal(
+   //    <div className='modal'>
+   //       <div className="modal__container">
+   //          <div className="modal__header">
+   //             <h3>{title}</h3>
+   //          </div>
+   //          <div className="modal__body">
+   //             {children}
+   //          </div>
+   //          <div className="modal__footer">
+   //             <button onClick={onSubmit}>
+   //                Create
+   //             </button>
+   //             <button onClick={onClose}>
+   //                Close
+   //             </button>
+   //          </div>
+   //       </div>
+   //    </div>,
+   //    modal
+   //    )
 }

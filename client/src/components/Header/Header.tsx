@@ -1,15 +1,29 @@
 import React, { useRef } from 'react'
 import { NavLink } from 'react-router-dom'
-import { useAppDispatch, useAppSelector } from '../../hooks/useAppRedux'
-import { useAuth } from '../../hooks/useAuth'
-import { authSelector, refreshUser } from '../../redux/slices/AuthSlice'
-import fakeAvatar from '../../assets/imgs/fake-avatar.png'
-
+import { useAppDispatch, useAppSelector } from '@hooks/useAppRedux'
+import { useAuth } from '@hooks/useAuth'
+import { authSelector, refreshUser } from '@redux/slices/AuthSlice'
+import fakeAvatar from '@assets/imgs/fake-avatar.png'
+import {motion} from 'framer-motion'
+import { deleteAvatar, uploadAvatar } from '@redux/slices/FileSlice'
+import { Avatar, Box, Link } from '@chakra-ui/react'
 import './Header.css'
-import { deleteAvatar, uploadAvatar } from '../../redux/slices/FileSlice'
-interface IHeader {
+interface IHeader {}
 
+const MCustom = {
+   initial: {
+      y: -200,
+      opacity: 0
+   },
+   animate: (delay: number) => ({
+      y: 0,
+      opacity: 1,
+      transition: {
+         delay
+      }
+   })
 }
+
 
 export const Header: React.FC<IHeader> = () => {
    const avatarRef = useRef<HTMLInputElement | null>(null)
@@ -17,62 +31,55 @@ export const Header: React.FC<IHeader> = () => {
 
    const {isAuth} = useAuth()
    const dispatch = useAppDispatch()
-   const avatar = user?.avatar ? `http://localhost:1998/${user?.avatar}` : fakeAvatar 
+   const avatar = user?.avatar ? `http://localhost:5000/${user?.avatar}` : fakeAvatar 
 
 
    const handleUploadAvatarOrDeleted = (e: React.ChangeEvent<HTMLInputElement>) => {
+         if(!!user?.avatar) {
+            dispatch(deleteAvatar())
 
-         const file = e.target.files
+         }else{
+            const file = e.target.files
 
-         if(!file) return
-   
-         dispatch(uploadAvatar(file[0]))
+            if(!file) return
       
-   }
-
-   const handleUploadAvatarOrDelet = (e: React.ChangeEvent<HTMLInputElement>) => {
-
-      const file = e.target.files
+            dispatch(uploadAvatar(file[0]))
+         }
    }
 
    return (
-      <header className='header'>
-         <div className='header__logo'>
+      <Box as='header' p={4} bg="primary.900" display='flex' alignItems="center" justifyContent="space-between">
+         <motion.div custom={isAuth? 0.2: 0} variants={MCustom} animate="animate" initial="initial" className='header__logo'>
             MERN CLOUD
-         </div>
+         </motion.div>
          <div className='header__btns'>
             {isAuth ? (
                <>
-                 <div className="header__avatar">
-                     <img src={avatar} alt="avatar" onClick={() => {
-                        if(!!user?.avatar){
-                           dispatch(deleteAvatar())
-                  
-                        }else{
-                           avatarRef.current?.click()
-
-                        }
-                     }}/>
+                  <Avatar cursor="pointer" width={35} height={35} src={avatar} onClick={() => avatarRef.current?.click()}/>
                      <input ref={avatarRef} type="file" className="avatar" onChange={handleUploadAvatarOrDeleted}/>
-                 </div>
                  <div className="header__btn" onClick={() => dispatch(refreshUser())}>Log Out</div>
                </>
 
             ) : (
                <>
-                  <div className="header__btn">
-                     <NavLink to="/login">
-                        Auth
-                     </NavLink>
-                  </div>
-                  <div className="header__btn">
-                     <NavLink to="/register">
-                        Register
-                     </NavLink>
-                  </div>
+                  <motion.div custom={0.3} variants={MCustom} animate="animate" initial="initial" className="header__btn">
+                     <Link colorScheme="blue">
+                        <NavLink  to="/login">
+                           Auth
+                        </NavLink>
+                     </Link>
+                    
+                  </motion.div>
+                  <motion.div custom={0.4} variants={MCustom} animate="animate" initial="initial" className="header__btn">
+                     <Link colorScheme="blue">
+                        <NavLink to="/register">
+                           Register
+                        </NavLink>
+                     </Link>
+                  </motion.div>
                </>
             )}
          </div>
-      </header>
+      </Box>
       )
 }

@@ -1,10 +1,10 @@
-import { defaultQueryParams } from './../../helpers/getQueryParams';
+import { defaultQueryParams } from '@helpers/getQueryParams';
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit"
 import axios, { AxiosResponse, AxiosError, } from 'axios'
-import ValidationErrors from 'axios'
-import { FileProgress, FileState, Filter, IFile, QueryParams } from "../../types/types"
-import { RootState } from "../store"
+import { FileProgress, FileState, Filter, IFile, QueryParams } from "@typesModule/types"
+import { RootState } from "@redux/store"
 import { fetchUserThunk } from './AuthSlice';
+import { setToast } from './ToastSlice';
 
 
 
@@ -19,10 +19,10 @@ const initialState: FileState = {
    isLoaded: false
  }
  
-export const fetchFiles = createAsyncThunk<IFile[], {currentDir: string | undefined, queryParams: QueryParams}>('fetchFiles', async (fileData, { rejectWithValue }) => {
+export const fetchFiles = createAsyncThunk<IFile[], {currentDir: string | undefined, queryParams: QueryParams}>('fetchFiles', async (fileData, { dispatch, rejectWithValue }) => {
    const { currentDir, queryParams } = fileData
 
-   let url = 'http://localhost:1998/file'
+   let url = 'http://localhost:5000/file'
 
    if(queryParams.searchValue && currentDir) {
       url += `?search=${queryParams.searchValue}&id=${currentDir}`
@@ -50,46 +50,53 @@ export const fetchFiles = createAsyncThunk<IFile[], {currentDir: string | undefi
         return response.data
 
     } catch (err) {
-     console.log(err)
-      let error = err as AxiosError<typeof ValidationErrors> 
+
+      let error = err as AxiosError<{message: string}> 
+     dispatch(setToast({title: error.response?.data?.message ?? 'Error with fetch files', status: 'error'}))
+
       return rejectWithValue(error.response?.data || 'Error with login')
     }
   }
 )
 
-export const createFolder = createAsyncThunk<IFile, {name: string, parentId?: string}>('file/create', async (folderData, { rejectWithValue }) => {
+export const createFolder = createAsyncThunk<IFile, {name: string, parentId?: string}>('file/create', async (folderData, { dispatch, rejectWithValue }) => {
 
    try {
-       const response: AxiosResponse<IFile, any> = await axios.post('http://localhost:1998/file', folderData, {
+       const response: AxiosResponse<IFile, any> = await axios.post('http://localhost:5000/file', folderData, {
           headers: {
              'Authorization': `Bearer ${localStorage.getItem('token')}`
           }
        })
-
+       dispatch(setToast({title: 'The folder has been successfully created', status: 'success'}))
        return response.data
 
    } catch (err) {
-    console.log(err)
-     let error = err as AxiosError<typeof ValidationErrors> 
+
+     let error = err as AxiosError<{message: string}> 
+     dispatch(setToast({title: error.response?.data?.message ?? 'Error with create folder', status: 'error'}))
+
      return rejectWithValue(error.response?.data || 'Error with login')
    }
  }
 )
 
-export const deleteFile = createAsyncThunk<IFile[], string>('file/delete', async (dirId, { rejectWithValue }) => {
+export const deleteFile = createAsyncThunk<IFile[], string>('file/delete', async (dirId, { dispatch, rejectWithValue }) => {
 
    try {
-       const response: AxiosResponse<IFile[], any> = await axios.delete(`http://localhost:1998/file/${dirId}`, {
+       const response: AxiosResponse<IFile[], any> = await axios.delete(`http://localhost:5000/file/${dirId}`, {
           headers: {
              'Authorization': `Bearer ${localStorage.getItem('token')}`
           }
        })
+       dispatch(setToast({title: 'The folder has been successfully deleted', status: 'success'}))
 
        return response.data
 
    } catch (err) {
-    console.log(err)
-     let error = err as AxiosError<typeof ValidationErrors> 
+
+     let error = err as AxiosError<{message: string}> 
+     dispatch(setToast({title: error.response?.data?.message ?? 'Error with deleted file', status: 'error'}))
+
      return rejectWithValue(error.response?.data || 'Error with login')
    }
 })
@@ -112,7 +119,7 @@ export const uploadFile = createAsyncThunk<IFile, { file: File, parentId?: strin
       }
       dispatch(setUploadFile(uploadingFile))
 
-       const response: AxiosResponse<IFile> = await axios.post(`http://localhost:1998/file/upload`,formData, {
+       const response: AxiosResponse<IFile> = await axios.post(`http://localhost:5000/file/upload`,formData, {
           headers: {
              'Authorization': `Bearer ${localStorage.getItem('token')}`
           },
@@ -123,20 +130,23 @@ export const uploadFile = createAsyncThunk<IFile, { file: File, parentId?: strin
 
           }
        })
+       dispatch(setToast({title: 'The file has been successfully uploaded', status: 'success'}))
 
        return response.data
 
    } catch (err) {
-    console.log(err)
-     let error = err as AxiosError<typeof ValidationErrors> 
+
+     let error = err as AxiosError<{ message: string }> 
+     dispatch(setToast({title: error.response?.data?.message ?? 'Error with upload file', status: 'error'}))
+
      return rejectWithValue(error.response?.data || 'Error with login')
    }
 })
 
-export const downloadFile = createAsyncThunk<void,  Pick<IFile, 'name' | 'type' | '_id'>>('file/download', async (file, { rejectWithValue }) => {
+export const downloadFile = createAsyncThunk<void,  Pick<IFile, 'name' | 'type' | '_id'>>('file/download', async (file, { dispatch, rejectWithValue }) => {
 
    try {
-       const response: AxiosResponse<Blob> = await axios.get(`http://localhost:1998/file/download/${file._id}`, {
+       const response: AxiosResponse<Blob> = await axios.get(`http://localhost:5000/file/download/${file._id}`, {
           responseType: 'blob',
           headers: {
              'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -150,10 +160,13 @@ export const downloadFile = createAsyncThunk<void,  Pick<IFile, 'name' | 'type' 
        URL.revokeObjectURL(downloadURL)
 
        link.remove()
+       dispatch(setToast({title: 'The file has been successfully downloaded', status: 'success'}))
 
    } catch (err) {
-    console.log(err)
-     let error = err as AxiosError<typeof ValidationErrors> 
+
+     let error = err as AxiosError<{message: string}> 
+     dispatch(setToast({title: error.response?.data?.message ?? 'Error with upload file', status: 'error'}))
+
      return rejectWithValue(error.response?.data || 'Error with login')
    }
 })
@@ -164,16 +177,19 @@ export const uploadAvatar = createAsyncThunk<void,  File>('file/avatar/upload', 
       const data = new FormData();
       data.append('file', file)
 
-       await axios.post(`http://localhost:1998/file/avatar/upload`,data, {
+       await axios.post(`http://localhost:5000/file/avatar/upload`,data, {
           headers: {
              'Authorization': `Bearer ${localStorage.getItem('token')}`
           },
        })
-       await dispatch(fetchUserThunk())
+       await dispatch(fetchUserThunk(localStorage.getItem('token') ?? ''))
+       dispatch(setToast({title: 'The avatar has been successfully uploaded', status: 'success'}))
 
    } catch (err) {
-    console.log(err)
-     let error = err as AxiosError<typeof ValidationErrors> 
+
+     let error = err as AxiosError<{message: string}> 
+     dispatch(setToast({title: error.response?.data?.message ?? 'Error with upload Avatar', status: 'error'}))
+
      return rejectWithValue(error.response?.data || 'Error with login')
    }
 })
@@ -184,16 +200,20 @@ export const deleteAvatar = createAsyncThunk<void>('file/avatar/delete', async (
    try {
 
 
-       await axios.delete(`http://localhost:1998/file/avatar/delete`, {
+       await axios.delete(`http://localhost:5000/file/avatar/delete`, {
           headers: {
              'Authorization': `Bearer ${localStorage.getItem('token')}`
           },
        })
 
-       await dispatch(fetchUserThunk())
+       await dispatch(fetchUserThunk(localStorage.getItem('token') ?? ''))
+       dispatch(setToast({title: 'The avatar has been successfully deleted', status: 'error'}))
+
    } catch (err) {
-    console.log(err)
-     let error = err as AxiosError<typeof ValidationErrors> 
+
+     let error = err as AxiosError<{message: string}>
+     dispatch(setToast({title: error.response?.data?.message ?? 'Error with deleted Avatar', status: 'error'}))
+
      return rejectWithValue(error.response?.data || 'Error with login')
    }
 })

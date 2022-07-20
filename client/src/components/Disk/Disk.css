@@ -1,5 +1,6 @@
 .disk{
    padding: 30px 10px;
+   overflow: hidden;
 }
 .disk-info{
    font-weight: 400;
