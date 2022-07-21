@@ -3,7 +3,7 @@ require('dotenv').config();
 const express = require('express');
 
 const mongoose = require('mongoose');
-
+const cors = require('cors')
 const app = express();
 
 const corsMiddleware = require('./middlewares/cors.middlewares.js');
@@ -15,6 +15,7 @@ const authRouter = require('./routes/auth.router.js');
 
 const fileRouter = require('./routes/file.router.js');
 
+app.use(cors())
 app.use(fileUpload({}));
 
 app.use(express.static('static'));
