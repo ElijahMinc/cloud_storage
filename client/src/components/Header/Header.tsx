@@ -31,20 +31,15 @@ export const Header: React.FC<IHeader> = () => {
 
    const {isAuth} = useAuth()
    const dispatch = useAppDispatch()
-   const avatar = user?.avatar ? `http://localhost:5000/${user?.avatar}` : fakeAvatar 
+   const avatar = user?.avatar ? `${process.env.REACT_APP_API_URL}/${user?.avatar}` : fakeAvatar 
 
 
    const handleUploadAvatarOrDeleted = (e: React.ChangeEvent<HTMLInputElement>) => {
-         if(!!user?.avatar) {
-            dispatch(deleteAvatar())
+      const file = e.target.files
 
-         }else{
-            const file = e.target.files
+      if(!file) return
 
-            if(!file) return
-      
-            dispatch(uploadAvatar(file[0]))
-         }
+      !!user?.avatar ?  dispatch(deleteAvatar()) : dispatch(uploadAvatar(file[0]))
    }
 
    return (

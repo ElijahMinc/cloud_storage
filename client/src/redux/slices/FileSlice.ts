@@ -22,7 +22,7 @@ const initialState: FileState = {
 export const fetchFiles = createAsyncThunk<IFile[], {currentDir: string | undefined, queryParams: QueryParams}>('fetchFiles', async (fileData, { dispatch, rejectWithValue }) => {
    const { currentDir, queryParams } = fileData
 
-   let url = 'http://localhost:5000/file'
+   let url = `${process.env.REACT_APP_API_URL}/file`
 
    if(queryParams.searchValue && currentDir) {
       url += `?search=${queryParams.searchValue}&id=${currentDir}`
