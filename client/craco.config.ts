@@ -1,3 +1,5 @@
+/// <reference types="react-scripts" />
+
 const path = require(`path`);
 
 const craco = {
