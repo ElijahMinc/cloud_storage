@@ -1,93 +1,119 @@
-const { Router } = require('express');
-const bcrypt = require('bcrypt');
+const { Router } = require("express")
+const bcrypt = require("bcrypt")
 
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken")
 
-const authMiddleware = require('../middlewares/auth.middleware.js');
+const authMiddleware = require("../middlewares/auth.middleware.js")
 
-const User = require('../modules/User.js');
+const User = require("../modules/User.js")
+const validateUser = require("../middlewares/validateUser.middleware")
+const { validationResult } = require("express-validator")
+const auth = Router()
 
-const auth = Router();
-
-auth.post('/login', async (req, res) => {
+auth.post("/login", validateUser, async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const errors = validationResult(req)
 
-    const user = await User.findOne({ email });
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        message: "Failed Login",
+        errors: errors.array(),
+      })
+    }
+
+    const { email, password } = req.body
+
+    const user = await User.findOne({ email })
 
     if (!user) {
       return res.status(400).json({
-        message: 'Такого пользователя не существует',
-      });
+        message: "There is no such user",
+      })
     }
-    const isValidPassword = await bcrypt.compare(password, user.password);
+    const isValidPassword = await bcrypt.compare(password, user.password)
 
     if (!isValidPassword) {
       return res.status(400).json({
-        message: 'Password invalid',
-      });
+        message: "Password invalid",
+      })
     }
 
-    const generateToken = jwt.sign({ _id: user._id, email: user.email }, process.env.SECRET_KEY);
+    const generateToken = jwt.sign(
+      { _id: user._id, email: user.email },
+      process.env.SECRET_KEY
+    )
 
     return res.status(201).json({
-      message: 'Auth is success',
+      message: "Auth is success",
       token: generateToken,
       user,
-    });
+    })
   } catch (e) {
+    console.log(e)
     return res.status(500).json({
-      message: 'Server Error',
-    });
+      message: "Server Error",
+    })
   }
-});
+})
 
-auth.post('/register', async (req, res) => {
+auth.post("/register", validateUser, async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const errors = validationResult(req)
 
-    const user = await User.findOne({ email });
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        message: "Failed register",
+        errors: errors.array(),
+      })
+    }
+
+    const { email, password } = req.body
+
+    const user = await User.findOne({ email })
 
     if (user) {
       return res.status(400).json({
-        message: 'Такой пользователь существует',
-      });
+        message: "Such a user already exists",
+      })
     }
-    const hashPassword = await bcrypt.hash(password, 8);
+    const hashPassword = await bcrypt.hash(password, 8)
 
     const newUser = new User({
       email,
       password: hashPassword,
-    });
+    })
 
-    const generateToken = jwt.sign({ _id: newUser._id, email: newUser.email }, process.env.SECRET_KEY);
+    const generateToken = jwt.sign(
+      { _id: newUser._id, email: newUser.email },
+      process.env.SECRET_KEY
+    )
 
-    await newUser.save();
+    await newUser.save()
 
     return res.status(201).json({
-      message: 'User created',
+      message: "User created",
       token: generateToken,
       user: newUser,
-    });
+    })
   } catch (e) {
-    console.log('EROR', e);
+    console.log("EROR", e)
     return res.status(500).json({
-      message: 'Server Error',
-    });
+      message: "Server Error",
+    })
   }
-});
+})
 
-auth.get('/user', authMiddleware, async (req, res) => {
+auth.get("/user", authMiddleware, async (req, res) => {
   try {
-    const user = await User.findOne({ _id: req.userId });
+    const user = await User.findOne({ _id: req.userId })
 
-    return res.status(200).json(user);
+    return res.status(200).json(user)
   } catch (e) {
-    console.log('EROR', e);
+    console.log("EROR", e)
     return res.status(500).json({
-      message: 'Server Error',
-    });
+      message: "Server Error",
+    })
   }
-});
+})
 
-module.exports = auth;
+module.exports = auth

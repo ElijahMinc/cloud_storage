@@ -1,7 +1,7 @@
 module.exports = (req,  res, next) => {
-   // if(req.method === 'OPTIONS'){
-   //    next()
-   // }
+   if(req.method === 'OPTIONS'){
+      next()
+   }
 
    res.set({
       'Access-Control-Allow-Origin': ['*'],
