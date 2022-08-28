@@ -207,7 +207,7 @@ export const deleteAvatar = createAsyncThunk<void>('file/avatar/delete', async (
        })
 
        await dispatch(fetchUserThunk(localStorage.getItem('token') ?? ''))
-       dispatch(setToast({title: 'The avatar has been successfully deleted', status: 'error'}))
+       dispatch(setToast({title: 'The avatar has been successfully deleted', status: 'success'}))
 
    } catch (err) {
 

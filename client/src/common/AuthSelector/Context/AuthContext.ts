@@ -1,5 +1,4 @@
-import React, { createContext, ReactElement, useContext, useState } from 'react'
-import { ProviderData } from '../types/types'
+import  { createContext, useContext } from 'react'
 
 
 export const AuthContext = createContext<any | null>(null)
