@@ -1,4 +1,4 @@
-const { model, Schema, Types } = require('mongoose');
+const { model, Schema, Types } = require("mongoose")
 
 const File = new Schema({
   name: {
@@ -21,20 +21,27 @@ const File = new Schema({
   },
   parent_id: {
     type: Types.ObjectId,
-    ref: 'File',
+    ref: "File",
   }, // parent будет ссылаться на файл ( в частиности папку, в которой он находится )
-  childs_dir: [{
-    type: Types.ObjectId,
-    ref: 'File',
-  }], // childs
+  childs_dir: [
+    {
+      type: Types.ObjectId,
+      ref: "File",
+    },
+  ], // childs
   user_id: {
     type: Types.ObjectId,
-    ref: 'User',
+    ref: "User",
   }, // пользователь, который добавил файл
-});
+  preview: {
+    type: String,
+  }, // ONLY FOR FILE
+})
 
-File.index({ name: 'text' })
+File.index({ name: "text" })
 
-module.exports = model('File', File);
+const FileModel = model("File", File)
 
-File.clearIndexes()
+module.exports = FileModel
+
+FileModel.createIndexes()

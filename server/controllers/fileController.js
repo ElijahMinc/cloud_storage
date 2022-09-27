@@ -1,232 +1,257 @@
-const path = require('path');
-const fs = require('fs');
-const uuid = require('uuid');
-const File = require('../modules/File.js');
-const User = require('../modules/User.js');
-const fileService = require('../services/fileService.js');
+const path = require("path")
+const fs = require("fs")
+const uuid = require("uuid")
+const File = require("../modules/File.js")
+const User = require("../modules/User.js")
+const fileService = require("../services/fileService.js")
+const cloudinary = require("../utils/cloudinary")
+
 class FileController {
   async createDir(req, res) {
     try {
-      const { name, parentId } = req.body;
+      const { name, parentId } = req.body
+      console.log("name", name)
 
+      if (!name) {
+        return res.status(500).json({
+          message: "Error with create dir",
+        })
+      }
       const file = new File({
         name,
-        type: 'dir',
+        type: "dir",
         date: new Date(),
         user_id: req.userId,
-      });
+      })
 
-      const parentFile = await File.findOne({ _id: parentId });
+      const parentFile = await File.findOne({ _id: parentId })
 
-      let pathFile;
+      let pathFile = ""
 
       if (parentFile) {
-        pathFile = parentFile.path + path.sep + file.name;
+        pathFile = parentFile.path + path.sep + file.name
 
-        parentFile.childs_dir.push(file._id);
+        parentFile.childs_dir.push(file._id)
 
-        fileService.createDir(file, parentFile);
+        // fileService.createDir(file, parentFile);
+        await fileService.createCloudinaryDir(file, parentFile)
 
-        file.parent_id = parentId;
+        file.parent_id = parentId
 
-        await parentFile.save();
+        await parentFile.save()
       } else {
-        pathFile = file.name;
+        pathFile = file.name
 
-        fileService.createDir(file);
+        // fileService.createDir(file);
+        await fileService.createCloudinaryDir(file)
       }
 
-      file.path = pathFile;
+      file.path = pathFile
 
-      await file.save();
+      await file.save()
 
-      return res.status(200).json(file);
+      return res.status(200).json(file)
     } catch (e) {
-      console.log('ERROR', e);
-      res.status(500).json({
-        message: 'Ошибка создания папки',
-      });
+      console.log("ERROR", e)
+      return res.status(500).json({
+        message: "Ошибка создания папки",
+      })
     }
   }
 
   async fetchFiles(req, res) {
     try {
       const { search, filter, sort } = req.query
-      const queryParams =  {
-         parent_id: req.query.id, 
-         user_id: req.userId,
+      const queryParams = {
+        parent_id: req.query.id,
+        user_id: req.userId,
       }
 
-      if(search) {
+      if (search) {
         queryParams.$text = { $search: search, $diacriticSensitive: true }
       }
 
-      let files = await File.find(queryParams).sort({date: sort});
+      let files = await File.find(queryParams).sort({ date: sort })
 
-      return res.status(200).json(files);
+      return res.status(200).json(files)
     } catch (e) {
+      console.log(e)
       return res.status(400).json({
-        message: 'Ошибка в получении файлов',
-      });
+        message: "Ошибка в получении файлов",
+      })
     }
   }
 
   async uploadFile(req, res) {
     try {
-      const { file } = req.files;
-      const { parentId } = req.body;
+      const file = req?.file
+      console.log("file", file)
+      // file.originalname = file.filename + `.${file.mimetype.split('/')[1]}`
+      const { parentId } = req.body
 
-      const parentFile = await File.findOne({ _id: parentId });
-      const user = await User.findOne({ _id: req.userId });
-      const typeFile = file.name.split('.')[1];
+      const parentFile = await File.findOne({ _id: parentId })
+      const user = await User.findOne({ _id: req.userId })
+      const typeFile = file.fieldname
 
       const newFile = new File({
-        name: file.name,
+        name: file.filename,
         type: typeFile,
         user_id: req.userId,
-        date: new Date()
-      });
+        date: new Date(),
+        preview: "",
+        uniq_hash: "",
+      })
       // if(file.size + user.usedSpace > user.diskSpace){
       //    return res.status(400).json({
       //       message: 'File is very big'
       //    })
       // }
-      newFile.size = file.size + user.usedSpace;
+      newFile.size = file.size + user.usedSpace
 
-      let pathFile = fileService.generateDefaultPathFile(req.userId);
+      let pathnameFile = fileService.getDefaultFilePath(newFile.user_id)
 
       if (parentFile) {
+        // const pathUploadParentFile = parentFile.path + path.sep + newFile.name
 
-        const pathUploadParentFile = parentFile.path + path.sep + newFile.name
+        const pathParentFile = path.sep + parentFile.path
+        pathnameFile += pathParentFile
 
-        pathFile += path.sep + pathUploadParentFile;
+        // if (fs.existsSync(fileService.filePath + pathnameFile)) {
+        //   throw new Error('The file is already exist');
+        // }
 
-        if (fs.existsSync(fileService.filePath + pathFile)) {
-          throw new Error('Папка уже существует');
-        }
+        newFile.parent_id = parentId
 
-        newFile.parent_id = parentId;
+        newFile.path = parentFile.path
+        parentFile.size += newFile.size
+        parentFile.childs_dir.push(newFile._id)
 
-        newFile.path = pathUploadParentFile;
-
-        parentFile.childs_dir.push(newFile._id);
-
-        await parentFile.save();
-      } else {
-        const pathUploadFile = file.name
-
-        pathFile += path.sep + pathUploadFile;
-
-        if (fs.existsSync(fileService.filePath + pathFile)) {
-          throw new Error('Папка уже существует');
-        }
-        newFile.path = file.name;
-
+        await parentFile.save()
       }
 
-      file.mv(fileService.filePath + pathFile);
+      const uploadedFile = await cloudinary.uploader.upload(file.path, {
+        folder: pathnameFile.split(path.sep).join("/"),
+        use_filename: true,
+        unique_filename: true,
+      })
 
-      await newFile.save();
+      const uniqHashName = uploadedFile.public_id.split("/").reverse()[0]
 
-      return res.status(200).json(newFile);
+      if (!parentFile) {
+        newFile.path = uniqHashName
+      } else {
+        newFile.path += path.sep + uniqHashName
+      }
+
+      newFile.preview = uploadedFile.url
+
+      await newFile.save()
+
+      return res.status(200).json(newFile)
     } catch (e) {
-      console.log('ERROR UPLOAD', e);
+      console.log("ERROR UPLOAD", e)
       return res.status(500).json({
-        message: 'Error Upload',
-      });
+        message: "Error Upload",
+      })
     }
   }
 
   async downloadFile(req, res) {
     try {
-        const { id } = req.params
-        const file = await File.findById(id)
+      const { id } = req.params
+      const file = await File.findById(id)
 
-        const filePath = fileService.getDefaultFilePath(file.user_id) + path.sep + file.path
+      const filePath =
+        fileService.getDefaultFilePath(file.user_id) + path.sep + file.path
 
-        res.download(filePath, file)
-
+      res.download(filePath, file)
     } catch (e) {
-      console.log('ERROR DOWNLOAD FILE', e);
+      console.log("ERROR DOWNLOAD FILE", e)
       return res.status(500).json({
-        message: 'Error DOWNLOAD FILE',
-      });
+        message: "Error DOWNLOAD FILE",
+      })
     }
   }
 
   async deleteFile(req, res) {
     try {
-      const { id } = req.params;
+      const { id } = req.params
 
-      const file = await File.findById(id);
-
+      const file = await File.findById(id)
+      console.log("file in deleteFile method", file)
       if (file.parent_id) {
-        await File.updateOne({ _id: file.parent_id }, { $pull: { childs_dir: file._id } });
+        await File.updateOne(
+          { _id: file.parent_id },
+          { $pull: { childs_dir: file._id } }
+        )
       }
 
-      fileService.deleteFile(file);
+      // fileService.deleteFile(file);
+      await fileService.deleteCloudinaryFile(file)
 
-      await file.deleteOne({ _id: id });
+      await file.deleteOne({ _id: id })
 
+      const files = await File.find({
+        parent_id: file.parent_id,
+        user_id: req.userId,
+      })
 
-      const files = await File.find({ parent_id: file.parent_id, user_id: req.userId });
-
-      return res.status(200).json(files);
-
+      return res.status(200).json(files)
     } catch (e) {
-      console.log('ERROR DELETE FILE', e);
+      console.log("ERROR DELETE FILE", e)
       return res.status(500).json({
-        message: 'Error DELETE FILE',
-      });
+        message: "Error DELETE FILE",
+      })
     }
   }
 
   async uploadAvatar(req, res) {
     try {
-      const { file } = req.files;
+      const { file } = req.files
 
-      const avatarName = `${uuid.v4()}.jpg`;
+      const avatarName = `${uuid.v4()}.jpg`
 
-      const defaultPath = path.resolve(__dirname, '../static') + path.sep + avatarName;
+      const defaultPath =
+        path.resolve(__dirname, "../static") + path.sep + avatarName
 
-      file.mv(defaultPath);
+      file.mv(defaultPath)
 
       await User.findByIdAndUpdate(req.userId, {
         avatar: avatarName,
-      });
+      })
 
       return res.status(200).json({
-        message: 'Avatar was uploaded',
-      });
+        message: "Avatar was uploaded",
+      })
     } catch (e) {
-      console.log('ERROR UPLOAD AVATAR', e);
+      console.log("ERROR UPLOAD AVATAR", e)
       return res.status(500).json({
-        message: 'Error Upload',
-      });
+        message: "Error Upload",
+      })
     }
   }
 
   async deleteAvatar(req, res) {
     try {
-      const user = await User.findById(req.userId);
-      const defaultPath = path.resolve(__dirname, '../static') + path.sep;
+      const user = await User.findById(req.userId)
+      const defaultPath = path.resolve(__dirname, "../static") + path.sep
 
-      fs.unlinkSync(defaultPath + path.sep + user.avatar);
+      fs.unlinkSync(defaultPath + path.sep + user.avatar)
 
-      user.avatar = null;
+      user.avatar = null
 
-      await user.save();
+      await user.save()
 
       return res.status(200).json({
-        message: 'Avatar was deleted',
-      });
+        message: "Avatar was deleted",
+      })
     } catch (e) {
-      console.log('ERROR UPLOAD', e);
+      console.log("ERROR UPLOAD", e)
       return res.status(500).json({
-        message: 'Error delete',
-      });
+        message: "Error delete",
+      })
     }
   }
 }
 
-module.exports = new FileController();
+module.exports = new FileController()

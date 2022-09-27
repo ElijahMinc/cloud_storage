@@ -6,6 +6,7 @@ const jwt = require("jsonwebtoken")
 const authMiddleware = require("../middlewares/auth.middleware.js")
 
 const User = require("../modules/User.js")
+const fileService = require('../services/fileService')
 const validateUser = require("../middlewares/validateUser.middleware")
 const { validationResult } = require("express-validator")
 const auth = Router()
@@ -89,6 +90,8 @@ auth.post("/register", validateUser, async (req, res) => {
     )
 
     await newUser.save()
+
+    await fileService.createPersonFolder(newUser._id)
 
     return res.status(201).json({
       message: "User created",
