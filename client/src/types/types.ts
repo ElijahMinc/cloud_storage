@@ -1,4 +1,5 @@
 export interface User {
+   _id: string
    email: string
    password: string
    usedSpace?: number
@@ -25,9 +26,13 @@ export interface FileProgress extends Omit<IFile, 'size' | 'date' | 'type' | '_i
 
 }
 
+export interface ParentDir {
+   id: string
+   name: string
+}
 export interface FileState {
    files: IFile[]
-   parentDirs: string[]
+   parentDirs: ParentDir[]
    uploadFiles: FileProgress[]
    currentDir: undefined | string
    error: string

@@ -1,7 +1,7 @@
 import { defaultQueryParams } from '@helpers/getQueryParams';
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit"
 import axios, { AxiosResponse, AxiosError, } from 'axios'
-import { FileProgress, FileState, Filter, IFile, QueryParams } from "@typesModule/types"
+import { FileProgress, FileState, Filter, IFile, ParentDir, QueryParams } from "@typesModule/types"
 import { RootState } from "@redux/store"
 import { fetchUserThunk } from './AuthSlice';
 import { setToast } from './ToastSlice';
@@ -14,7 +14,7 @@ const initialState: FileState = {
    parentDirs: [],
    uploadFiles: [],
    params: defaultQueryParams,
-   currentDir: undefined,
+   currentDir: '',
    error: '',
    isLoaded: false
  }
@@ -225,10 +225,10 @@ export const deleteAvatar = createAsyncThunk<void>('file/avatar/delete', async (
       setCurrentDir(state, action: PayloadAction<string>){
          state.currentDir = action.payload
       },
-      setParentId(state, action: PayloadAction<string>){
+      setParentId(state, action: PayloadAction<ParentDir>){
          state.parentDirs.push(action.payload)
       },
-      setUpdatedParentDirsOfId(state, action: PayloadAction<string[]>){
+      setUpdatedParentDirsOfId(state, action: PayloadAction<ParentDir[]>){
          state.parentDirs = action.payload
       },
       setProgressUploadFile(state, action: PayloadAction<FileProgress>){
@@ -321,5 +321,6 @@ export  const { setCurrentDir, setParentId, setUpdatedParentDirsOfId, setSearchV
 
  
 export const fileSelector = (state: RootState) => state.file
+export const parentDirsSelector = (state: RootState) => state.file.parentDirs
 
 export default fileSlice.reducer

@@ -41,7 +41,7 @@ export const File: React.FC<any> = forwardRef<any, any>(
         className={`file ${type !== "dir" ? "no-dir" : ""}`}
         onClick={() => {
           if (type !== "dir") return
-          dispatch(setParentId(_id))
+          dispatch(setParentId({id: _id, name }))
           dispatch(setCurrentDir(_id))
         }}
       >
