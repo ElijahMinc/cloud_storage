@@ -178,13 +178,24 @@ class FileController {
       const { id } = req.params
 
       const file = await File.findById(id)
-      console.log("file in deleteFile method", file)
+
       if (file.parent_id) {
+        if(file.type !== 'dir'){
+          
+          const parentDir = await File.findById(file.parent_id)
+
+          parentDir.size -= file.size
+
+          await parentDir.save()
+        }
+
         await File.updateOne(
           { _id: file.parent_id },
           { $pull: { childs_dir: file._id } }
         )
       }
+
+
 
       // fileService.deleteFile(file);
       await fileService.deleteCloudinaryFile(file)
