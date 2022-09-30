@@ -1,20 +1,11 @@
-import React, {
-  BaseSyntheticEvent,
-  FormEventHandler,
-  ReactEventHandler,
-  useState,
-} from "react"
-import { useDispatch } from "react-redux"
+import React from "react"
 import { AuthForm } from "../../common/AuthSelector/AuthForm"
 import { useAppDispatch, useAppSelector } from "../../hooks/useAppRedux"
 import { authSelector, loginThunk } from "../../redux/slices/AuthSlice"
 
 import "./Auth.css"
-interface ILogin {
-  // isRegister: boolean
-}
 
-export const Login: React.FC<ILogin> = () => {
+export const Login: React.FC = () => {
   const dispatch = useAppDispatch()
   const { isLoaded } = useAppSelector(authSelector)
 
@@ -26,7 +17,7 @@ export const Login: React.FC<ILogin> = () => {
   }
 
   return (
-    <AuthForm title="Login" onSubmit={handleSubmit}>
+    <AuthForm title="login" onSubmit={handleSubmit}>
       <AuthForm.MInput
         initial={{ opacity: 0, x: -100 }}
         animate={{ opacity: 1, x: 0 }}

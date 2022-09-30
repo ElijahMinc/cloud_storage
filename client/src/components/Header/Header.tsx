@@ -7,9 +7,12 @@ import fakeAvatar from "@assets/imgs/fake-avatar.png"
 import { motion } from "framer-motion"
 import { deleteAvatar, uploadAvatar } from "@redux/slices/FileSlice"
 import { Avatar, Box, Link } from "@chakra-ui/react"
+import { useTranslate } from "@/hooks/useTranslations"
 
 import "./Header.css"
-interface IHeader {}
+import { RadioCardGroup } from "@/common/RadioCard/RadioCard"
+import { setCurrentLanguage } from "@/utils/currentLanguage"
+import { LANGUAGES } from "@/constant"
 
 const MCustom = {
   initial: {
@@ -25,7 +28,10 @@ const MCustom = {
   }),
 }
 
-export const Header: React.FC<IHeader> = () => {
+export const Header: React.FC = () => {
+
+
+  const { t, i18n } = useTranslate()
   const avatarRef = useRef<HTMLInputElement | null>(null)
   const { user } = useAppSelector(authSelector)
 
@@ -43,6 +49,12 @@ export const Header: React.FC<IHeader> = () => {
     if (!file) return
 
     dispatch(uploadAvatar(file[0]))
+  }
+
+  const onChangeHandle = (value: LANGUAGES) => {
+    // setLang(value)
+    setCurrentLanguage(value)
+    i18n.changeLanguage(value)
   }
 
   return (
@@ -63,6 +75,7 @@ export const Header: React.FC<IHeader> = () => {
       >
         MERN CLOUD
       </motion.div>
+      <RadioCardGroup onChange={onChangeHandle} />
       <div className="header__btns">
         {isAuth ? (
           <>
@@ -87,7 +100,7 @@ export const Header: React.FC<IHeader> = () => {
               className="header__btn"
               onClick={() => dispatch(refreshUser())}
             >
-              Log Out
+              {t('log-out')}
             </div>
           </>
         ) : (

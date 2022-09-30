@@ -29,12 +29,14 @@ import { UploadDrawer } from "@/components/UploadDrawer/UploadDrawer"
 import { Select } from "@chakra-ui/react"
 import { SearchIcon } from "@chakra-ui/icons"
 import { CustomModal } from "../../common/Modal/Modal"
-import {  useSelector } from "react-redux"
+import { useSelector } from "react-redux"
 import { drawerSelector, setClose, setOpen } from "@/redux/slices/DrawerSlice"
 
 import "./Navbar.css"
+import { useTranslate } from "@/hooks/useTranslations"
 
 export const Navbar: React.FC = () => {
+  const { t } = useTranslate()
   const { onOpen, onClose, isOpen } = useDisclosure()
   const { isOpen: isOpenDrawer } = useSelector(drawerSelector)
   const inputUploadFileRef = useRef<HTMLInputElement>(null)
@@ -115,12 +117,12 @@ export const Navbar: React.FC = () => {
       <div className="navbar__item">
         {!!parentDirs.length && (
           <Button colorScheme="blue" size="xs" onClick={handleBack}>
-            Back
+            {t("back")}
           </Button>
         )}
 
         <Button colorScheme="blue" width="200px" onClick={onOpen}>
-          Create New Folder
+          {t("create-new-folder")}
         </Button>
         <Button colorScheme="blue" position="relative" width="200px">
           <FormLabel
@@ -137,7 +139,7 @@ export const Navbar: React.FC = () => {
             cursor="pointer"
             position="absolute"
           >
-            Upload File
+            {t("upload-file")}
             <input
               ref={inputUploadFileRef}
               id="file"
@@ -158,13 +160,13 @@ export const Navbar: React.FC = () => {
             type="text"
             variant="flushed"
             onChange={handleSearchValue()}
-            placeholder="Search file..."
+            placeholder={t("search-file")}
           />
         </InputGroup>
       </div>
       <div className="navbar__item" style={{ flexDirection: "column" }}>
         <Text fontSize={"2xl"} color="primary.500" mb={2}>
-          Sort By:
+          {t("sort-by")}:
         </Text>
         <Stack spacing={2}>
           <Select
@@ -181,7 +183,7 @@ export const Navbar: React.FC = () => {
           >
             {defaultFilters.map(({ id, value }) => (
               <option key={id} value={id}>
-                {setFirstWordToUppercase(value)}
+                {t(`by-${value}`)}
               </option>
             ))}
           </Select>
@@ -193,24 +195,24 @@ export const Navbar: React.FC = () => {
               dispatch(setSortValue(sortValue))
             }}
           >
-            <option value="asc">{setFirstWordToUppercase("asc")}</option>
-            <option value="desc">{setFirstWordToUppercase("desc")}</option>
+            <option value="asc">{t("asc")}</option>
+            <option value="desc">{t("desc")}</option>
           </Select>
         </Stack>
       </div>
       <CustomModal
-        title="Create New Folder"
+        title={t("create-new-folder")}
         isOpen={isOpen}
         onClose={onClose}
         onSubmit={handleSubmitModal}
       >
         <FormControl mt={4}>
-          <FormLabel>Folder Name</FormLabel>
+          <FormLabel>{t("folder-name")}</FormLabel>
           <Input
             type="text"
             value={modalValue}
             onChange={(e) => setModalValue(e.target.value)}
-            placeholder="Введите имя папки"
+            placeholder={t("enter-folder-name")}
           />
         </FormControl>
       </CustomModal>

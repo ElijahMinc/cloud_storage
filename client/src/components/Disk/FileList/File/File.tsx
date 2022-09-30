@@ -15,10 +15,12 @@ import { DeleteIcon } from "@chakra-ui/icons"
 import "./File.css"
 import { Image, useBoolean } from "@chakra-ui/react"
 import { downloadImage } from "@/utils/downloadImage"
+import { useTranslate } from "@/hooks/useTranslations"
 
 //IFile
 export const File: React.FC<any> = forwardRef<any, any>(
   ({ date, name, size, type, _id, preview }, ref) => {
+    const { t } = useTranslate()
     const [flag, setFlag] = useBoolean()
     const dispatch = useAppDispatch()
     const FileImage = !!preview ? (
@@ -41,7 +43,7 @@ export const File: React.FC<any> = forwardRef<any, any>(
         className={`file ${type !== "dir" ? "no-dir" : ""}`}
         onClick={() => {
           if (type !== "dir") return
-          dispatch(setParentId({id: _id, name }))
+          dispatch(setParentId({ id: _id, name }))
           dispatch(setCurrentDir(_id))
         }}
       >
@@ -55,7 +57,7 @@ export const File: React.FC<any> = forwardRef<any, any>(
           className={`file__item download ${type === "dir" ? "touch" : ""}`}
           onClick={() => downloadImage(preview, { name, format: "png" })}
         >
-          {type !== "dir" && "Download"}
+          {type !== "dir" && t("download")}
         </div>
         <div className="file__item">
           <DeleteIcon

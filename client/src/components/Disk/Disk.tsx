@@ -8,6 +8,7 @@ import { FileList } from "./FileList/FileList"
 import "./Disk.css"
 import { useSelector } from "react-redux"
 import { drawerSelector, setOpen } from "@/redux/slices/DrawerSlice"
+import { useTranslate } from "@/hooks/useTranslations"
 
 export const Disk: React.FC = () => {
   const dispatch = useAppDispatch()
@@ -17,9 +18,9 @@ export const Disk: React.FC = () => {
     isLoaded,
     params: queryParams,
   } = useAppSelector(fileSelector)
+  const { t } = useTranslate()
   // const [filter, setFilter] = useState<Filter[]>(defaultFilters)
   // const [params, setParams] = useState<QueryParams>(defaultQueryParams)
-  const { isOpen: isOpenDrawer } = useSelector(drawerSelector)
 
   const [dragEnter, setDragEnter] = useState(false)
 
@@ -54,7 +55,9 @@ export const Disk: React.FC = () => {
     e.stopPropagation()
     dispatch(setOpen())
     let files = Array.from(e.dataTransfer.files)
-    files.forEach((file) => dispatch(uploadFile({ file, parentId: currentDir })))
+    files.forEach((file) =>
+      dispatch(uploadFile({ file, parentId: currentDir }))
+    )
     setDragEnter(false)
   }
 
@@ -66,25 +69,31 @@ export const Disk: React.FC = () => {
       onDrop={dropHandler}
       onDragLeave={dragLeaveHandler}
     >
-      {isNotEmptyFilesOrDrag ? (
-        <>
-          <div className="disk-info">
-            <div className="disk-info__item">
-              <Text fontSize="md">Name</Text>
+      {isLoaded ? (
+        isNotEmptyFilesOrDrag ? (
+          <>
+            <div className="disk-info">
+              <div className="disk-info__item">
+                <Text fontSize="md">{t("by-name")}</Text>
+              </div>
+              <div className="disk-info__item">
+                <Text fontSize="md">{t("by-date")}</Text>
+              </div>
+              <div className="disk-info__item">
+                <Text fontSize="md">{t("size")}</Text>
+              </div>
             </div>
-            <div className="disk-info__item">
-              <Text fontSize="md">Data</Text>
+            <div className="files">
+              <FileList />
             </div>
-            <div className="disk-info__item">
-              <Text fontSize="md">Size</Text>
-            </div>
-          </div>
-          <div className="files">{isLoaded ? <FileList /> : <Loader />}</div>
-        </>
+          </>
+        ) : (
+          <Flex justifyContent="center" alignItems="center" height="300px">
+            <Text as="h2">{t("drag-and-drop")}</Text>
+          </Flex>
+        )
       ) : (
-        <Flex justifyContent="center" alignItems="center" height="300px">
-          <Text as="h2">Upload the Drag and Drop file here or create a folder</Text>
-        </Flex>
+        <Loader />
       )}
     </div>
   )

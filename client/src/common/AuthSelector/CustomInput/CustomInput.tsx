@@ -2,6 +2,7 @@ import React, { forwardRef } from "react"
 import { useAuthSelector } from "../Context/AuthContext"
 import { FormControl, FormLabel, Input } from "@chakra-ui/react"
 import { motion } from "framer-motion"
+import { useTranslate } from "@/hooks/useTranslations"
 
 interface IInput {
   isEmail: boolean
@@ -15,23 +16,23 @@ export const CustomInput: React.FC<any> = forwardRef<any, IInput>(
       handleChangeEmail,
       handleChangePassword,
     } = useAuthSelector()
-
+    const { t } = useTranslate()
     return (
       <FormControl ref={ref}>
-        <FormLabel>{isEmail ? "Your Email" : "Your Password"}</FormLabel>
+        <FormLabel>{t(isEmail ? "your-email" : "your-password")}</FormLabel>
         {isEmail ? (
           <Input
             type="email"
             value={emailValue}
             onChange={(e) => handleChangeEmail(e.target.value)}
-            placeholder="Please enter your email"
+            placeholder={t("enter-email")}
           />
         ) : (
           <Input
             type="password"
             value={passwordValue}
             onChange={(e) => handleChangePassword(e.target.value)}
-            placeholder="Please enter your password"
+            placeholder={t("enter-password")}
           />
         )}
       </FormControl>
