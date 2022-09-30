@@ -2,6 +2,7 @@ import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 import  authReducer  from './slices/AuthSlice';
 import  fileReducer  from './slices/FileSlice';
 import  toastReducer  from './slices/ToastSlice';
+import  drawerReducer  from './slices/DrawerSlice';
 
 
 
@@ -9,7 +10,8 @@ export const store = configureStore({
   reducer: {
     auth: authReducer,
     file: fileReducer,
-    toast: toastReducer
+    toast: toastReducer,
+    drawer: drawerReducer
   },
 });
 

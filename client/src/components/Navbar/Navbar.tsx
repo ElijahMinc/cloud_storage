@@ -28,15 +28,17 @@ import { Filter, QueryParams } from "@typesModule/types"
 import { UploadDrawer } from "@/components/UploadDrawer/UploadDrawer"
 import { Select } from "@chakra-ui/react"
 import { SearchIcon } from "@chakra-ui/icons"
+import { CustomModal } from "../../common/Modal/Modal"
+import {  useSelector } from "react-redux"
+import { drawerSelector, setClose, setOpen } from "@/redux/slices/DrawerSlice"
 
 import "./Navbar.css"
-import { CustomModal } from "../../common/Modal/Modal"
 
 export const Navbar: React.FC = () => {
   const { onOpen, onClose, isOpen } = useDisclosure()
-
+  const { isOpen: isOpenDrawer } = useSelector(drawerSelector)
   const inputUploadFileRef = useRef<HTMLInputElement>(null)
-  const [isShowUploadDrawer, setShowUploadDrawer] = useState(false)
+
   const [modalValue, setModalValue] = useState("")
 
   const dispatch = useAppDispatch()
@@ -60,7 +62,7 @@ export const Navbar: React.FC = () => {
 
   const handleUploadFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && inputUploadFileRef.current) {
-      setShowUploadDrawer(true)
+      dispatch(setOpen())
       dispatch(setRefreshFilesUpload())
 
       const files = Array.from(e.target.files)
@@ -213,8 +215,8 @@ export const Navbar: React.FC = () => {
         </FormControl>
       </CustomModal>
       <UploadDrawer
-        isOpen={isShowUploadDrawer}
-        onClose={() => setShowUploadDrawer(false)}
+        isOpen={isOpenDrawer}
+        onClose={() => dispatch(setClose())}
       />
     </nav>
   )

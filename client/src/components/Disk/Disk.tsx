@@ -6,18 +6,24 @@ import { Loader } from "@components/Loader/Loader"
 import { FileList } from "./FileList/FileList"
 
 import "./Disk.css"
+import { useSelector } from "react-redux"
+import { drawerSelector, setOpen } from "@/redux/slices/DrawerSlice"
 
 export const Disk: React.FC = () => {
   const dispatch = useAppDispatch()
   const {
     currentDir,
+    files,
     isLoaded,
     params: queryParams,
   } = useAppSelector(fileSelector)
   // const [filter, setFilter] = useState<Filter[]>(defaultFilters)
   // const [params, setParams] = useState<QueryParams>(defaultQueryParams)
+  const { isOpen: isOpenDrawer } = useSelector(drawerSelector)
 
   const [dragEnter, setDragEnter] = useState(false)
+
+  const isNotEmptyFilesOrDrag = files.length && !dragEnter
 
   useEffect(() => {
     dispatch(fetchFiles({ currentDir, queryParams }))
@@ -46,8 +52,9 @@ export const Disk: React.FC = () => {
   const dropHandler = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault()
     e.stopPropagation()
+    dispatch(setOpen())
     let files = Array.from(e.dataTransfer.files)
-    files.forEach((file) => dispatch(uploadFile({ file })))
+    files.forEach((file) => dispatch(uploadFile({ file, parentId: currentDir })))
     setDragEnter(false)
   }
 
@@ -59,7 +66,7 @@ export const Disk: React.FC = () => {
       onDrop={dropHandler}
       onDragLeave={dragLeaveHandler}
     >
-      {!dragEnter ? (
+      {isNotEmptyFilesOrDrag ? (
         <>
           <div className="disk-info">
             <div className="disk-info__item">
@@ -76,7 +83,7 @@ export const Disk: React.FC = () => {
         </>
       ) : (
         <Flex justifyContent="center" alignItems="center" height="300px">
-          <Text as="h2">Перетащите файлы сюда</Text>
+          <Text as="h2">Upload the Drag and Drop file here or create a folder</Text>
         </Flex>
       )}
     </div>

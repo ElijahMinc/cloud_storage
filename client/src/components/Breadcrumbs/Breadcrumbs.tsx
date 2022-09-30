@@ -32,7 +32,7 @@ export const Breadcrumbs: React.FC = () => {
   }, [parentDirsBreadCrumps])
 
   return (
-    <Breadcrumb separator="/">
+    <Breadcrumb separator="/" className="breadcrumbs">
       {parentDirsBreadCrumps.map(({ id, name }, idx) => (
         <React.Fragment key={id}>
           <BreadcrumbsItem

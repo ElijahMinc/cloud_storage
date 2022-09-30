@@ -1,3 +1,7 @@
+.breadcrumbs {
+  margin: 25px 0;
+  margin-left: 25px;
+}
 .separator {
   margin: 0 10px;
   display: inline-block;
