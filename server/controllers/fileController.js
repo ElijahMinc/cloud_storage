@@ -82,7 +82,27 @@ class FileController {
     }
   }
 
+  async updateSizeParentDir(parentFile, options = { isDelete: false }) {
+    if (!parentFile) return
+
+    const parentDirOfParentDir = await File.findOne({
+      _id: parentFile?.parent_id,
+    })
+
+    if (!parentDirOfParentDir) return
+
+    if (options.isDelete) {
+      parentDirOfParentDir.size -= parentFile.size
+    } else {
+      parentDirOfParentDir.size += parentFile.size
+    }
+    await parentDirOfParentDir.save()
+
+    this.updateSizeParentDir(parentDirOfParentDir.parent_id)
+  }
+
   async uploadFile(req, res) {
+    console.log("this in file", this)
     try {
       const file = req?.file
       console.log("file", file)
@@ -124,6 +144,11 @@ class FileController {
 
         newFile.path = parentFile.path
         parentFile.size += newFile.size
+
+        if (!!parentFile.parent_id && parentFile.type === "dir") {
+          this.updateSizeParentDir(parentFile, { isDelete: false })
+        }
+
         parentFile.childs_dir.push(newFile._id)
 
         await parentFile.save()
@@ -180,22 +205,21 @@ class FileController {
       const file = await File.findById(id)
 
       if (file.parent_id) {
-        if(file.type !== 'dir'){
-          
-          const parentDir = await File.findById(file.parent_id)
+        const parentDir = await File.findById(file.parent_id)
 
-          parentDir.size -= file.size
+        parentDir.size -= file.size
 
-          await parentDir.save()
+        if (parentDir.parent_dir) {
+          await this.updateSizeParentDir(parentFile, { isDelete: true })
         }
+
+        await parentDir.save()
 
         await File.updateOne(
           { _id: file.parent_id },
           { $pull: { childs_dir: file._id } }
         )
       }
-
-
 
       // fileService.deleteFile(file);
       await fileService.deleteCloudinaryFile(file)
@@ -265,4 +289,6 @@ class FileController {
   }
 }
 
-module.exports = new FileController()
+const fileController = new FileController()
+
+module.exports = fileController
