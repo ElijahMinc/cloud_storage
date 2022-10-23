@@ -3,6 +3,14 @@ const fs = require('fs');
 const cloudinary = require('../utils/cloudinary')
 
 class FileService {
+  formats = Object.freeze({
+    PNG: 'png',
+    JPEG: 'jpeg',
+    JPG: 'jpg',
+    WEBP: 'webp',
+    PDF: 'pdf'
+  })
+
   createDir(file, parentFile) {
     let pathname = this.getDefaultFilePath(file.user_id);
 
@@ -99,6 +107,10 @@ class FileService {
   }
   get rootFolder(){
     return 'cloud-mern'
+  }
+
+  get formats(){
+    return this.formats
   }
 }
 

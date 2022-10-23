@@ -16,6 +16,13 @@ file.post(
   multer.single("file"),
   fileController.uploadFile.bind(fileController)
 )
+
+file.post(
+  "/transform",
+  authMiddleware,
+  multer.single("file"),
+  fileController.transformFile.bind(fileController)
+)
 file.post("/avatar/upload", authMiddleware, fileController.uploadAvatar)
 file.delete("/avatar/delete", authMiddleware, fileController.deleteAvatar)
 

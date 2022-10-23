@@ -5,7 +5,7 @@ const File = require("../modules/File.js")
 const User = require("../modules/User.js")
 const fileService = require("../services/fileService.js")
 const cloudinary = require("../utils/cloudinary")
-
+const sharp = require("sharp")
 class FileController {
   async createDir(req, res) {
     try {
@@ -33,7 +33,6 @@ class FileController {
 
         parentFile.childs_dir.push(file._id)
 
-        // fileService.createDir(file, parentFile);
         await fileService.createCloudinaryDir(file, parentFile)
 
         file.parent_id = parentId
@@ -42,7 +41,6 @@ class FileController {
       } else {
         pathFile = file.name
 
-        // fileService.createDir(file);
         await fileService.createCloudinaryDir(file)
       }
 
@@ -102,11 +100,9 @@ class FileController {
   }
 
   async uploadFile(req, res) {
-    console.log("this in file", this)
     try {
       const file = req?.file
       console.log("file", file)
-      // file.originalname = file.filename + `.${file.mimetype.split('/')[1]}`
       const { parentId } = req.body
 
       const parentFile = await File.findOne({ _id: parentId })
@@ -121,24 +117,14 @@ class FileController {
         preview: "",
         uniq_hash: "",
       })
-      // if(file.size + user.usedSpace > user.diskSpace){
-      //    return res.status(400).json({
-      //       message: 'File is very big'
-      //    })
-      // }
+
       newFile.size = file.size + user.usedSpace
 
       let pathnameFile = fileService.getDefaultFilePath(newFile.user_id)
 
       if (parentFile) {
-        // const pathUploadParentFile = parentFile.path + path.sep + newFile.name
-
         const pathParentFile = path.sep + parentFile.path
         pathnameFile += pathParentFile
-
-        // if (fs.existsSync(fileService.filePath + pathnameFile)) {
-        //   throw new Error('The file is already exist');
-        // }
 
         newFile.parent_id = parentId
 
@@ -282,6 +268,84 @@ class FileController {
       })
     } catch (e) {
       console.log("ERROR UPLOAD", e)
+      return res.status(500).json({
+        message: "Error delete",
+      })
+    }
+  }
+
+  async transformFile(req, res) {
+    try {
+      const file = req?.file
+      const body = req.body
+      console.log("body", body)
+      // const initConfig = {
+
+      // }
+
+      // Object.entries(fileService.formats)
+      //   .forEach(([keyFormat, valueFormat ]) => {
+      //     if(valueFormat === body.type){
+      //       initConfig[''] = body.type
+      //     }
+      // })
+
+      // if(body.isCompress){
+      //   initConfig
+      // }
+      // if(body.format)
+      const formats = fileService.formats
+
+      let sharpFile = sharp(file.path).resize({
+        width: Number(body.width),
+        height: Number(body.height),
+        fit: sharp.fit.cover,
+        // position: sharp.position.top,
+      })
+
+      switch (body.type) {
+        case formats.PNG:
+          sharpFile = Boolean(+body?.isCompress)
+            ? sharpFile.png({ quality: 50 })
+            : sharpFile.png()
+          break
+        case formats.JPEG:
+          sharpFile = Boolean(+body?.isCompress)
+            ? sharpFile.jpeg({ quality: 50 })
+            : sharpFile.jpeg()
+          break
+        case formats.JPG:
+          sharpFile = Boolean(+body?.isCompress)
+            ? sharpFile.jpeg({ quality: 50 })
+            : sharpFile.jpeg()
+          break
+        case formats.WEBP:
+          sharpFile = Boolean(+body?.isCompress)
+            ? sharpFile.webp({ quality: 50 })
+            : sharpFile.webp()
+          break
+        default:
+          return res.status(404).json({
+            message: "Incorrect format",
+          })
+      }
+
+      // .png()
+      // .toBuffer({
+      //   resolveWithObject: true,
+      // })
+      const bufferedFile = await sharpFile.toBuffer({
+        resolveWithObject: true,
+      })
+
+      return res.status(200).json({
+        message: "OK",
+        imageInfo: bufferedFile.info,
+        image: bufferedFile.data.toString("base64"),
+        isDownload: Boolean(+body.isDownload),
+      })
+    } catch (error) {
+      console.log("ERRor", error)
       return res.status(500).json({
         message: "Error delete",
       })
