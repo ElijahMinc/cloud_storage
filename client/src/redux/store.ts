@@ -3,6 +3,7 @@ import  authReducer  from './slices/AuthSlice';
 import  fileReducer  from './slices/FileSlice';
 import  toastReducer  from './slices/ToastSlice';
 import  drawerReducer  from './slices/DrawerSlice';
+import  modalReducer  from './slices/ModalSlice';
 
 
 
@@ -11,7 +12,8 @@ export const store = configureStore({
     auth: authReducer,
     file: fileReducer,
     toast: toastReducer,
-    drawer: drawerReducer
+    drawer: drawerReducer,
+    modal: modalReducer
   },
 });
 

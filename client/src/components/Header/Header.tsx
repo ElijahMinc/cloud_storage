@@ -1,18 +1,19 @@
-import React, { useRef } from "react"
-import { NavLink } from "react-router-dom"
+import React, { useEffect, useMemo, useRef, useState } from "react"
+import { NavLink, useHistory } from "react-router-dom"
 import { useAppDispatch, useAppSelector } from "@hooks/useAppRedux"
 import { useAuth } from "@hooks/useAuth"
 import { authSelector, refreshUser } from "@redux/slices/AuthSlice"
 import fakeAvatar from "@assets/imgs/fake-avatar.png"
 import { motion } from "framer-motion"
 import { deleteAvatar, uploadAvatar } from "@redux/slices/FileSlice"
-import { Avatar, Box, Link } from "@chakra-ui/react"
+import { Avatar, Box, Button, Link, useDisclosure } from "@chakra-ui/react"
 import { useTranslate } from "@/hooks/useTranslations"
 
 import "./Header.css"
 import { RadioCardGroup } from "@/common/RadioCard/RadioCard"
 import { setCurrentLanguage } from "@/utils/currentLanguage"
 import { LANGUAGES } from "@/constant"
+import { CustomModal } from "@/common/Modal/Modal"
 
 const MCustom = {
   initial: {
@@ -29,11 +30,20 @@ const MCustom = {
 }
 
 export const Header: React.FC = () => {
+  const windowLocationOrigin = useMemo(() => {
+    const location = window.location
+    const origin = location.origin
 
+    return origin
+  }, [])
+
+  const isConverterHref =
+    window.location.href === `${windowLocationOrigin}/converter`
 
   const { t, i18n } = useTranslate()
   const avatarRef = useRef<HTMLInputElement | null>(null)
   const { user } = useAppSelector(authSelector)
+  const { onOpen } = useDisclosure()
 
   const { isAuth } = useAuth()
   const dispatch = useAppDispatch()
@@ -57,6 +67,12 @@ export const Header: React.FC = () => {
     i18n.changeLanguage(value)
   }
 
+  const handleSubmitModal = () => {}
+
+  useEffect(() => {
+    isConverterHref && onOpen()
+  }, [])
+
   return (
     <Box
       as="header"
@@ -79,7 +95,7 @@ export const Header: React.FC = () => {
       <div className="header__btns">
         {isAuth ? (
           <>
-            <Avatar
+            {/* <Avatar
               cursor="pointer"
               width={35}
               height={35}
@@ -89,18 +105,18 @@ export const Header: React.FC = () => {
                   ? avatarRef.current?.click()
                   : dispatch(deleteAvatar())
               }
-            />
-            <input
+            /> */}
+            {/* <input
               ref={avatarRef}
               type="file"
               className="avatar"
               onChange={handleUploadAvatarOrDeleted}
-            />
+            /> */}
             <div
               className="header__btn"
               onClick={() => dispatch(refreshUser())}
             >
-              {t('log-out')}
+              {t("log-out")}
             </div>
           </>
         ) : (
@@ -113,7 +129,7 @@ export const Header: React.FC = () => {
               className="header__btn"
             >
               <Link colorScheme="blue">
-                <NavLink to="/login">Auth</NavLink>
+                <NavLink to="/login">{t("auth")}</NavLink>
               </Link>
             </motion.div>
             <motion.div
@@ -124,7 +140,7 @@ export const Header: React.FC = () => {
               className="header__btn"
             >
               <Link colorScheme="blue">
-                <NavLink to="/register">Register</NavLink>
+                <NavLink to="/register">{t("register")}</NavLink>
               </Link>
             </motion.div>
           </>

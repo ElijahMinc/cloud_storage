@@ -37,6 +37,7 @@ export interface FileState {
    currentDir: undefined | string
    error: string
    isLoaded: boolean
+   isLoadedConvertPicture: boolean
    params: QueryParams
 }
 

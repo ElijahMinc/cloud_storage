@@ -1,0 +1,39 @@
+.preview__upload-file {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 2;
+  border-radius: 12px;
+
+  overflow: hidden;
+}
+
+.preview__upload-file:after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.31);
+  z-index: 1;
+}
+
+.preview__upload-file img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+  border-radius: 12px;
+}
+
+.preview__upload-file-info {
+  position: relative;
+  z-index: 3;
+}

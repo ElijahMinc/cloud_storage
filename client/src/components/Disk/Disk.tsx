@@ -4,11 +4,9 @@ import { useAppDispatch, useAppSelector } from "@hooks/useAppRedux"
 import { fetchFiles, fileSelector, uploadFile } from "@redux/slices/FileSlice"
 import { Loader } from "@components/Loader/Loader"
 import { FileList } from "./FileList/FileList"
-
-import "./Disk.css"
-import { useSelector } from "react-redux"
-import { drawerSelector, setOpen } from "@/redux/slices/DrawerSlice"
 import { useTranslate } from "@/hooks/useTranslations"
+import { setOpen } from "@/redux/slices/DrawerSlice"
+import "./Disk.css"
 
 export const Disk: React.FC = () => {
   const dispatch = useAppDispatch()
@@ -93,7 +91,7 @@ export const Disk: React.FC = () => {
           </Flex>
         )
       ) : (
-        <Loader />
+        <Loader isFixed />
       )}
     </div>
   )

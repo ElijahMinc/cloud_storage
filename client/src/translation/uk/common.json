@@ -25,7 +25,19 @@
   "save": "Зберегти",
   "cancel": "Скасувати",
   "size": "Розмір",
+  "format": "Формат",
+  "name": "Ім'я",
+  "width": "Ширина",
+  "height": "Висота",
   "uploading-file": "Завантаження файла(-ів)",
   "okey": "Добренько C:",
-  "download": "Завантажити"
+  "download": "Завантажити",
+  "converter": "Конвертер",
+  "convert-image": "Конвертуйте картинку",
+  "transformation-settings": "Налаштування трансформації",
+  "width-image": "Ширина зображення",
+  "height-image": "Висота зображення",
+  "name-image": "Ім'я зображення",
+  "format-image": "Формат зображення",
+  "compress": "Стиснути"
 }

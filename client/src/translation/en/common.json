@@ -25,7 +25,20 @@
   "save": "Save",
   "cancel": "Cancel",
   "size": "Size",
+
+  "name": "Name",
+  "format": "Format",
+  "width": "Width",
+  "height": "Height",
   "uploading-file": "Uploading files",
   "okey": "Okey ^^",
-  "download": "Download"
+  "download": "Download",
+  "converter": "Converter",
+  "convert-image": "Convert the picture",
+  "transformation-settings": "Transformation settings",
+  "width-image": "Width image",
+  "height-image": "Height image",
+  "name-image": "Name image",
+  "format-image": "Format image",
+  "compress": "Compress"
 }

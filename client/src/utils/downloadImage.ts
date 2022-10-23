@@ -1,7 +1,7 @@
 import axios from "axios"
 
 export const downloadImage = async (
-  url,
+  url: string,
   options = {
     name: "",
     format: "",

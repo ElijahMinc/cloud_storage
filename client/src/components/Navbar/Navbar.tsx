@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   FormControl,
   FormLabel,
@@ -22,6 +23,7 @@ import {
   setSearchValue,
   setSortValue,
   setUpdatedParentDirsOfId,
+  transformFile,
   uploadFile,
 } from "@redux/slices/FileSlice"
 import { Filter, QueryParams } from "@typesModule/types"
@@ -34,20 +36,33 @@ import { drawerSelector, setClose, setOpen } from "@/redux/slices/DrawerSlice"
 
 import "./Navbar.css"
 import { useTranslate } from "@/hooks/useTranslations"
+import { useHistory } from "react-router-dom"
+import {
+  UploadFile,
+  UploadFileData,
+} from "../../common/UploadFileSelector/UploadFile"
+import { Loader } from "../Loader/Loader"
 
 export const Navbar: React.FC = () => {
+  console.log("rerender")
   const { t } = useTranslate()
   const { onOpen, onClose, isOpen } = useDisclosure()
+  const {
+    onOpen: onOpenCustomize,
+    onClose: onCloseCustomize,
+    isOpen: isOpenCustomize,
+  } = useDisclosure()
   const { isOpen: isOpenDrawer } = useSelector(drawerSelector)
   const inputUploadFileRef = useRef<HTMLInputElement>(null)
 
   const [modalValue, setModalValue] = useState("")
-
+  const { push } = useHistory()
   const dispatch = useAppDispatch()
   const [filter, setFilter] = useState<Filter>(defaultFilters[0])
   const [sort, setSort] = useState<QueryParams["sort"]>("asc")
 
-  const { currentDir, parentDirs } = useAppSelector(fileSelector)
+  const { currentDir, parentDirs, isLoadedConvertPicture } =
+    useAppSelector(fileSelector)
 
   const handleBack = () => {
     const newParentDirs = [...parentDirs]
@@ -96,6 +111,13 @@ export const Navbar: React.FC = () => {
     dispatch(createFolder(createFolderData))
     setModalValue("")
     onClose()
+  }
+  const handleSubmitConverter = async (data: UploadFileData) => {
+    await dispatch(transformFile(data))
+  }
+
+  const handleSubmitConverterModal = () => {
+    console.log("submit")
   }
 
   const handleSearchValue = () => {
@@ -148,6 +170,9 @@ export const Navbar: React.FC = () => {
               type="file"
             />
           </FormLabel>
+        </Button>
+        <Button colorScheme="blue" width="200px" onClick={onOpenCustomize}>
+          {t("converter")}
         </Button>
       </div>
       <div className="navbar__item">
@@ -215,6 +240,29 @@ export const Navbar: React.FC = () => {
             placeholder={t("enter-folder-name")}
           />
         </FormControl>
+      </CustomModal>
+      <CustomModal
+        title={t("convert-image")}
+        isOpen={isOpenCustomize}
+        size="4xl"
+        withFooter={false}
+        modalBodyProps={{
+          // minHeight: 400,
+          flexBasis: 400,
+        }}
+        onClose={() => {
+          // push("/")
+          onCloseCustomize()
+        }}
+        onSubmit={handleSubmitConverterModal}
+      >
+        <UploadFile
+          onSubmit={handleSubmitConverter}
+          isLoaded={isLoadedConvertPicture}
+        >
+          <UploadFile.Settings />
+          <UploadFile.SubmitButton />
+        </UploadFile>
       </CustomModal>
       <UploadDrawer
         isOpen={isOpenDrawer}

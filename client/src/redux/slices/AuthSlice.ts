@@ -4,6 +4,9 @@ import ValidationErrors from "axios"
 import { AuthState, User, Response } from "@typesModule/types"
 import { RootState } from "@redux/store"
 import { setToast } from "./ToastSlice"
+import { $AuthApi } from "@/http/axios.http"
+import { LocalStorageService } from "@/service/LocalStorageService"
+import { LocalStorageKeys } from "@/constant"
 
 const initialState: AuthState = {
   user: null,
@@ -43,8 +46,8 @@ export const registerThunk = createAsyncThunk<
   Pick<User, "email" | "password">
 >("auth/register", async (userData, { dispatch, rejectWithValue }) => {
   try {
-    const response: AxiosResponse<Response<User>> = await axios.post(
-      `${process.env.REACT_APP_API_URL}/auth/register`,
+    const response: AxiosResponse<Response<User>> = await $AuthApi.post(
+      "/auth/register",
       userData
     )
     dispatch(setToast({ title: `Register is success`, status: "success" }))
@@ -63,18 +66,11 @@ export const registerThunk = createAsyncThunk<
   }
 })
 
-export const fetchUserThunk = createAsyncThunk<User, string>(
+export const fetchUserThunk = createAsyncThunk<User>(
   "auth/user",
-  async (token, { dispatch, rejectWithValue }) => {
+  async (_, { dispatch, rejectWithValue }) => {
     try {
-      const response: AxiosResponse<User> = await axios.get(
-        `${process.env.REACT_APP_API_URL}/auth/user`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
+      const response: AxiosResponse<User> = await $AuthApi.get("/auth/user")
 
       dispatch(
         setToast({ title: `Hello, ${response.data.email}`, status: "success" })
@@ -82,9 +78,12 @@ export const fetchUserThunk = createAsyncThunk<User, string>(
 
       return response.data
     } catch (err) {
+      console.log(err)
       let error = err as AxiosError<typeof ValidationErrors>
       dispatch(setToast({ title: `Error with Authorization`, status: "error" }))
-
+      if (error.response?.status === 401) {
+        LocalStorageService.delete(LocalStorageKeys.TOKEN)
+      }
       return rejectWithValue(error.response?.data || "Error fetch user")
     }
   }
@@ -105,7 +104,7 @@ export const authSlice = createSlice({
       state.token = action.payload.token
       state.isLoaded = true
 
-      localStorage.setItem("token", action.payload.token)
+      localStorage.setItem("token", JSON.stringify(action.payload.token))
     })
     build.addCase(loginThunk.pending, (state, action) => {
       state.isLoaded = false
@@ -119,7 +118,7 @@ export const authSlice = createSlice({
       state.user = action.payload.user
       state.token = action.payload.token
       state.isLoaded = true
-      localStorage.setItem("token", action.payload.token)
+      localStorage.setItem("token", JSON.stringify(action.payload.token))
     })
     build.addCase(registerThunk.pending, (state, action) => {
       state.isLoaded = false
