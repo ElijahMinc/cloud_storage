@@ -1,5 +1,5 @@
 import { Flex, Text } from "@chakra-ui/react"
-import React, { DragEvent, MouseEvent, useEffect, useState } from "react"
+import React, { DragEvent, HTMLAttributes, MouseEvent, useEffect, useState } from "react"
 import { useAppDispatch, useAppSelector } from "@hooks/useAppRedux"
 import { fetchFiles, fileSelector, uploadFile } from "@redux/slices/FileSlice"
 import { Loader } from "@components/Loader/Loader"
@@ -7,6 +7,13 @@ import { FileList } from "./FileList/FileList"
 import { useTranslate } from "@/hooks/useTranslations"
 import { setOpen } from "@/redux/slices/DrawerSlice"
 import "./Disk.css"
+
+declare module 'react' {
+  interface InputHTMLAttributes<T> extends HTMLAttributes<T> {
+    directory?: string | boolean | undefined;
+    webkitdirectory?: string | boolean | undefined;
+  }
+}
 
 export const Disk: React.FC = () => {
   const dispatch = useAppDispatch()
@@ -48,7 +55,7 @@ export const Disk: React.FC = () => {
     setDragEnter(false)
   }
 
-  const dropHandler = (e: DragEvent<HTMLDivElement>) => {
+  const dropHandler = async (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault()
     e.stopPropagation()
     dispatch(setOpen())
@@ -67,6 +74,10 @@ export const Disk: React.FC = () => {
       onDrop={dropHandler}
       onDragLeave={dragLeaveHandler}
     >
+      {/* <input type="file" webkitdirectory id="ctrl" onChange={async () => {
+           const file = await (window as any).showDirectoryPicker()
+           console.log(file)
+      }} /> */}
       {isLoaded ? (
         isNotEmptyFilesOrDrag ? (
           <>
